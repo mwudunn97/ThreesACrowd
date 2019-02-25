@@ -3,7 +3,7 @@ project(ThreesACrowd)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(src)
+include_directories(src, glm)
 
 add_executable(ThreesACrowd
         .idea/encodings.xml
