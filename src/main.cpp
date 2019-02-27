@@ -11,8 +11,6 @@ int main(int argc, char* argv[]) {
     std::cout << "Hello World" << std::endl;
 
     Grid grid;
-
-    std::cout << "Two: " << grid.getPoint()[2] << std::endl;
 }
 
 void density_conversion(Grid &grid, std::vector<Person> &people) {

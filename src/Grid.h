@@ -6,15 +6,35 @@
 #define THREESACROWD_GRID_H
 
 #include <glm/vec4.hpp>
+#include <glm/vec2.hpp>
+#include <vector>
+#include <array>
+
+struct Edge {
+    glm::vec2 g_grad;
+    glm::vec2 phi_grad;
+    glm::vec2 v;
+};
+
+struct Cell {
+    float g;
+    float phi;
+    float rho;
+    float h;
+    glm::vec2 v_avg;
+    /* Going INTO this cell: E,N,W,S */
+    glm::vec4 f;
+    glm::vec4 C;
+    std::array<Edge*, 4> edges;
+};
 
 class Grid {
 public:
     Grid();
 
-    glm::vec4 getPoint();
-
 private:
-    glm::vec4 point;
+    std::vector<std::vector<Cell>> grid;
+    std::vector<Edge> edges;
 };
 
 
