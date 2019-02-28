@@ -6,11 +6,18 @@
 
 #include <iostream>
 #include "Grid.h"
+#include "Person.h"
 
 int main(int argc, char* argv[]) {
     std::cout << "Hello World" << std::endl;
 
-    Grid grid;
+    Grid grid(4, 3);
+
+    Person dalton(2.6f, 1.3f, -5.0f);
+    Cell *daltonCell = dalton.getCell(grid); // 2,1
+    daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
+    Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
+    std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
 }
 
 void density_conversion(Grid &grid, std::vector<Person> &people) {

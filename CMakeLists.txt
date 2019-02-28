@@ -15,4 +15,4 @@ add_executable(ThreesACrowd
         src/Grid.cpp
         src/Grid.h
         src/main.cpp
-        README.md)
+        README.md src/Person.cpp src/Person.h)
