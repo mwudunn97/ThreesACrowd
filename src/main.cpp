@@ -101,7 +101,9 @@ void construct_dynamic_potential_field(Grid &grid) {
 void crowd_avection(Grid &grid, std::vector<Person> &people) {
   // TODO 4.4: update each person's position by interpolating into the vector
   // field
-  return;
+  for (auto &person : people) {
+    person.setPos(person.getPos() + person.getCell(grid)->v_avg);
+  }
 }
 
 
