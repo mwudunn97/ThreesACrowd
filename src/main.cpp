@@ -4,6 +4,7 @@
  * Dalton Omens, Marc WuDunn, Jessie Yang
 */
 
+#include <glm/glm.hpp>
 #include <iostream>
 #include "Grid.h"
 #include "Person.h"
@@ -20,6 +21,9 @@ int main(int argc, char* argv[]) {
     Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
     std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
     std::cout << daltonAbove->neighbors[South]->g << std::endl;
+
+    float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
+    std::cout << "-9: " << smth << std::endl;
 }
 
 void density_conversion(Grid &grid, std::vector<Person> &people) {
