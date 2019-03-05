@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 #include <iostream>
+#include <math.h>
 #include "Grid.h"
 #include "Person.h"
 
@@ -26,10 +27,63 @@ int main(int argc, char* argv[]) {
     std::cout << "-9: " << smth << std::endl;
 }
 
-void density_conversion(Grid &grid, std::vector<Person> &people) {
+void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) {
   // TODO 4.1: convert positions of Persons into densities and
   // insert into Grid. Also calculate average velocities of each cell.
-  return;
+
+  int width = grid.getWidth();
+  int height = grid.getHeight();
+
+  // reset all rho and v_avg values for the grid
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; i < width; j++) {
+      Cell *cell = grid.getCell(i, j);
+      cell->rho = 0.0f;
+      cell->v_avg[0] = 0.0f;
+      cell->v_avg[1] = 0.0f;
+    }
+  }
+
+
+  for (auto &person : people) {
+    // TODO: will this find the correct, closest cell center?
+    glm::ivec2 gridIndex = person.getGridIndex();
+    float dx = person.getPos()[0] - gridIndex[0];
+    float dy = person.getPos()[1] - gridIndex[1];
+    Cell *curr_cell = grid.getCell(gridIndex[0], gridIndex[1]);
+
+    // add density to current cell
+    float rho_a = pow(std::min(1-dx, 1-dy), lambda);
+    curr_cell->rho += rho_a;
+    // accumulate weighted density for avg velocity calculation
+    curr_cell->v_avg += person.getVelocity() * rho_a;
+
+    // TODO: think of a cleaner way to write this
+    if (gridIndex[0] + 1 < width) {
+      // add density to cell to the right
+      float rho_b = pow(std::min(dx, 1-dy), lambda);
+      curr_cell->neighbors[East]->rho += rho_b;
+
+      if (gridIndex[1] - 1 >= 0) {
+        // add density to cell above and to the right
+        float rho_c = pow(std::min(dx, dy), lambda);
+        curr_cell->neighbors[North]->neighbors[East]->rho += rho_c;
+      }
+    }
+    if (gridIndex[1] - 1 >= 0) {
+      // add density to cell above
+      float rho_d = pow(std::min(1-dx, dy), lambda);
+        curr_cell->neighbors[North]->rho += rho_d;
+    }
+  }
+
+  // calculate the average velocity
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; i < width; j++) {
+      Cell *cell = grid.getCell(i, j);
+      cell->v_avg /= cell->rho;
+    }
+  }
 }
 
 
