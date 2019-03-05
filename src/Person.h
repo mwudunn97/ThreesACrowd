@@ -22,6 +22,8 @@ public:
 
     glm::vec2 getPos();
     glm::vec2 getVelocity();
+    glm::vec2 setPos(glm::vec2 pos);
+    glm::vec2 setVelocity(glm::vec2 pos);
 
 private:
     glm::vec2 pos;

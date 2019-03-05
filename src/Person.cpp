@@ -28,3 +28,11 @@ glm::vec2 Person::getPos() {
 glm::vec2 Person::getVelocity() {
     return velocity;
 }
+
+glm::vec2 Person::setPos(glm::vec2 pos) {
+    this->pos = pos;
+}
+
+glm::vec2 Person::setVelocity(glm::vec2 pos) {
+    this->velocity = velocity;
+}
