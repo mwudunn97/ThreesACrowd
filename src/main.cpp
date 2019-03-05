@@ -32,7 +32,7 @@ void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) 
 
   // reset all rho and v_avg values for the grid
   for (int i = 0; i < height; i++) {
-    for (int j = 0; i < width; j++) {
+    for (int j = 0; j < width; j++) {
       Cell *cell = grid.getCell(i, j);
       cell->rho = 0.0f;
       cell->v_avg[0] = 0.0f;
@@ -75,7 +75,7 @@ void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) 
 
   // calculate the average velocity
   for (int i = 0; i < height; i++) {
-    for (int j = 0; i < width; j++) {
+    for (int j = 0; j < width; j++) {
       Cell *cell = grid.getCell(i, j);
       cell->v_avg /= cell->rho;
     }
