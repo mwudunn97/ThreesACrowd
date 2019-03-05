@@ -6,26 +6,13 @@
 
 #include <glm/glm.hpp>
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include "Grid.h"
 #include "Person.h"
+#include <json.hpp>
 
-int main(int argc, char* argv[]) {
-    std::cout << "Hello World" << std::endl;
-
-    Grid grid(4, 3);
-
-    Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
-    Cell *daltonCell = dalton.getCell(grid); // 2,1
-    daltonCell->g = 1234;
-    daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
-    Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
-    std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
-    std::cout << daltonAbove->neighbors[South]->g << std::endl;
-
-    float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
-    std::cout << "-9: " << smth << std::endl;
-}
+using json = nlohmann::json;
 
 void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) {
   // TODO 4.1: convert positions of Persons into densities and
@@ -53,7 +40,7 @@ void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) 
     Cell *curr_cell = grid.getCell(gridIndex[0], gridIndex[1]);
 
     // add density to current cell
-    float rho_a = pow(std::min(1-dx, 1-dy), lambda);
+    float rho_a = static_cast<float>(pow(std::min(1-dx, 1-dy), lambda));
     curr_cell->rho += rho_a;
     // accumulate weighted density for avg velocity calculation
     curr_cell->v_avg += person.getVelocity() * rho_a;
@@ -61,18 +48,18 @@ void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) 
     // TODO: think of a cleaner way to write this
     if (gridIndex[0] + 1 < width) {
       // add density to cell to the right
-      float rho_b = pow(std::min(dx, 1-dy), lambda);
+      float rho_b = static_cast<float>(pow(std::min(dx, 1-dy), lambda));
       curr_cell->neighbors[East]->rho += rho_b;
 
       if (gridIndex[1] - 1 >= 0) {
         // add density to cell above and to the right
-        float rho_c = pow(std::min(dx, dy), lambda);
+        float rho_c = static_cast<float>(pow(std::min(dx, dy), lambda));
         curr_cell->neighbors[North]->neighbors[East]->rho += rho_c;
       }
     }
     if (gridIndex[1] - 1 >= 0) {
       // add density to cell above
-      float rho_d = pow(std::min(1-dx, dy), lambda);
+      float rho_d = static_cast<float>(pow(std::min(1-dx, dy), lambda));
         curr_cell->neighbors[North]->rho += rho_d;
     }
   }
@@ -116,4 +103,47 @@ void enforce_minimum_distsance(Grid &grid, std::vector<Person> &people) {
   // apart symmetrically until min. distance is reached. may instead use a
   // neighbor grid instead of the vector of Persons.
   return;
+}
+
+void test_structures() {
+    std::cout << "Hello World" << std::endl;
+
+    Grid grid(4, 3);
+
+    Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
+    Cell *daltonCell = dalton.getCell(grid); // 2,1
+    daltonCell->g = 1234;
+    daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
+    Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
+    std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
+    std::cout << daltonAbove->neighbors[South]->g << std::endl;
+
+    float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
+    std::cout << "-9: " << smth << std::endl;
+}
+
+int load_config(json &j, char *config) {
+    std::ifstream f(config);
+    if (!f.good()) {
+        std::cerr << "Config file " << config << " does not exist" << std::endl;
+        return -1;
+    }
+    f >> j;
+    return 0;
+}
+
+int main(int argc, char* argv[]) {
+    // test_structures();
+
+    if (argc < 2) {
+        std::cerr << "Please specify a configuration file" << std::endl;
+        return -1;
+    }
+    json j;
+    if (load_config(j, argv[1])) {
+        return -1;
+    }
+
+    Grid grid(j["grid"]["width"], j["grid"]["height"]);
+    std::cout << grid.getWidth() << std::endl;
 }
