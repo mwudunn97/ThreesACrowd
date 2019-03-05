@@ -23,6 +23,14 @@ struct Edge {
     glm::vec2 v;
 };
 
+const std::array<glm::vec2, 4> n_theta {{
+        {1.0f, 0.0f},
+        {0.0f, 1.0f},
+        {-1.0f, 0.0f},
+        {0.0f, -1.0f}
+    }
+};
+
 struct Cell {
     Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS);
 
@@ -36,6 +44,7 @@ struct Cell {
     /* Going INTO this cell: E,N,W,S */
     glm::vec4 f;
     glm::vec4 C;
+
     std::array<Edge*, 4> edges;
 
     /* Neighbors */
