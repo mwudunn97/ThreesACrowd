@@ -5,15 +5,26 @@
 #include "Person.h"
 
 Person::Person()
-: x(0.0f), y(0.0f), smelliness(0.0f) {}
+: pos(0, 0), velocity(0, 0), smelliness(0.0f) {}
 
-Person::Person(float x, float y, float smelliness)
-: x(x), y(y), smelliness(smelliness) {}
+Person::Person(glm::vec2 pos, glm::vec2 velocity, float smelliness)
+: pos(pos), velocity(velocity), smelliness(smelliness) {}
+
+Person::Person(float x, float y, float vx, float vy, float smelliness)
+: pos(x, y), velocity(vx, vy), smelliness(smelliness) {}
 
 glm::ivec2 Person::getGridIndex() const {
-    return glm::ivec2(static_cast<int>(x), static_cast<int>(y));
+    return glm::ivec2(static_cast<int>(pos[0]), static_cast<int>(pos[1]));
 }
 
 Cell *Person::getCell(Grid &grid) {
-    return grid.getCell(static_cast<int>(x), static_cast<int>(y));
+    return grid.getCell(static_cast<int>(pos[0]), static_cast<int>(pos[1]));
+}
+
+glm::vec2 Person::getPos() {
+    return pos;
+}
+
+glm::vec2 Person::getVelocity() {
+    return velocity;
 }

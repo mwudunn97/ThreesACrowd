@@ -11,7 +11,8 @@
 class Person {
 public:
     Person();
-    Person(float x, float y, float smelliness);
+    Person(glm::vec2 pos, glm::vec2 velocity, float smelliness);
+    Person(float x, float y, float vx, float vy, float smelliness);
 
     /* Grid index of current position */
     glm::ivec2 getGridIndex() const;
@@ -19,9 +20,13 @@ public:
     /* Cell of current position */
     Cell *getCell(Grid &grid);
 
+    glm::vec2 getPos();
+    glm::vec2 getVelocity();
+
 private:
-    float x;
-    float y;
+    glm::vec2 pos;
+    glm::vec2 velocity;
+
     float smelliness;
 };
 
