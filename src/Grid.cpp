@@ -32,6 +32,16 @@ Grid::Grid(int width, int height)
                     &edges[edgeS_idx]);
         }
     }
+
+    /* Attach neighbors */
+    for (int j = 0; j < width; j++) {
+        for (int i = 0; i < height; i++) {
+            if (i > 0) grid[j][i].neighbors[West] = &grid[j][i-1];
+            if (i < width - 1) grid[j][i].neighbors[East] = &grid[j][i+1];
+            if (j < height - 1) grid[j][i].neighbors[North] = &grid[j+1][i];
+            if (j > 0) grid[j][i].neighbors[South] = &grid[j-1][i];
+        }
+    }
 }
 
 int Grid::getWidth() const {

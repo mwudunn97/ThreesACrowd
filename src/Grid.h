@@ -26,6 +26,7 @@ struct Edge {
 struct Cell {
     Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS);
 
+    /* Center of this cell */
     float g;
     float phi;
     float rho;
@@ -36,6 +37,9 @@ struct Cell {
     glm::vec4 f;
     glm::vec4 C;
     std::array<Edge*, 4> edges;
+
+    /* Neighbors */
+    std::array<Cell*, 4> neighbors;
 };
 
 /* Row-major grid

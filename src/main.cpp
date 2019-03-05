@@ -15,9 +15,11 @@ int main(int argc, char* argv[]) {
 
     Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
     Cell *daltonCell = dalton.getCell(grid); // 2,1
+    daltonCell->g = 1234;
     daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
     Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
     std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
+    std::cout << daltonAbove->neighbors[South]->g << std::endl;
 }
 
 void density_conversion(Grid &grid, std::vector<Person> &people) {
