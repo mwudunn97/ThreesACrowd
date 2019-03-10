@@ -1,0 +1,19 @@
+{
+
+"alpha" : 1.0,
+"beta"  : 1.0,
+"gamma" : 1.0,
+
+"rho_min" : 0.1,
+"rho_max" : 0.9,
+"f_min"   : 1.0,
+"f_max"   : 0.0,
+"s_min"   : 0.0,
+"s_max"   : 5.0,
+
+"grid" : {
+	"width" : 4,
+	"height" : 3
+}
+
+}
