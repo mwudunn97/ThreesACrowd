@@ -74,10 +74,45 @@ void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) 
 }
 
 
+
 void calculate_unit_cost(Grid &grid) {
   // TODO 4.2: iterate over each of 4 directions of each cell
   // and calculate f_{M->i} and {C_M->i} where i is in {N, E, S, W}
-  return;
+
+  /* To make things easier, we iterate through speed/cost going INTO a cell because you have
+  * to use the fields from the cell you're going into, not the one you came from */
+  for (auto &row : grid.grid) {
+    for (auto &cell : row) {
+      for (int dir = East; dir <= South; dir++) {
+        /* dir = direction we're coming FROM. Therefore, n_theta is negated */
+        Edge *e = cell.edges[dir];
+
+        /* Equation 8: topographical speed */
+        float slope = (glm::dot(e->h_grad, -n_theta[dir]) - grid.s_min) /
+            (grid.s_max - grid.s_min);
+        float topo_speed = grid.f_max + slope * (grid.f_min - grid.f_max);
+
+        /* Equation 9: flow speed */
+        float flow_speed = glm::dot(cell.v_avg, -n_theta[dir]);
+        if (flow_speed < 0.0f) flow_speed = 0.0f;
+
+        if (cell.rho <= grid.rho_min) {
+          cell.f[dir] = topo_speed;
+        } else if (cell.rho >= grid.rho_max) {
+          cell.f[dir] = flow_speed;
+        } else {
+          /* Equation 10: linearly interpolate */
+          float speed = topo_speed + (cell.rho - grid.rho_min) /
+              (grid.rho_max - grid.rho_min) * (flow_speed - topo_speed);
+          cell.f[dir] = speed;
+        }
+
+        /* Equation 4: Cost field */
+        float cost = (grid.alpha * cell.f[dir] + grid.beta + grid.gamma * cell.g) / cell.f[dir];
+        cell.C[dir] = cost;
+      }
+    }
+  }
 }
 
 
@@ -106,44 +141,43 @@ void enforce_minimum_distsance(Grid &grid, std::vector<Person> &people) {
 }
 
 void test_structures() {
-    std::cout << "Hello World" << std::endl;
+  std::cout << "Hello World" << std::endl;
 
-    Grid grid(4, 3);
+  Grid grid(4, 3);
 
-    Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
-    Cell *daltonCell = dalton.getCell(grid); // 2,1
-    daltonCell->g = 1234;
-    daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
-    Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
-    std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
-    std::cout << daltonAbove->neighbors[South]->g << std::endl;
+  Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
+  Cell *daltonCell = dalton.getCell(grid); // 2,1
+  daltonCell->g = 1234;
+  daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
+  Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
+  std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
+  std::cout << daltonAbove->neighbors[South]->g << std::endl;
 
-    float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
-    std::cout << "-9: " << smth << std::endl;
+  float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
+  std::cout << "-9: " << smth << std::endl;
 }
 
 int load_config(json &j, char *config) {
-    std::ifstream f(config);
-    if (!f.good()) {
-        std::cerr << "Config file " << config << " does not exist" << std::endl;
-        return -1;
-    }
-    f >> j;
-    return 0;
+  std::ifstream f(config);
+  if (!f.good()) {
+    std::cerr << "Config file " << config << " does not exist" << std::endl;
+    return -1;
+  }
+  f >> j;
+  return 0;
 }
 
 int main(int argc, char* argv[]) {
-    // test_structures();
+  // test_structures();
 
-    if (argc < 2) {
-        std::cerr << "Please specify a configuration file" << std::endl;
-        return -1;
-    }
-    json j;
-    if (load_config(j, argv[1])) {
-        return -1;
-    }
+  if (argc < 2) {
+    std::cerr << "Please specify a configuration file" << std::endl;
+    return -1;
+  }
+  json j;
+  if (load_config(j, argv[1])) {
+    return -1;
+  }
 
-    Grid grid(j["grid"]["width"], j["grid"]["height"]);
-    std::cout << grid.getWidth() << std::endl;
+  Grid grid(j);
 }

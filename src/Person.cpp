@@ -14,25 +14,25 @@ Person::Person(float x, float y, float vx, float vy, float smelliness)
 : pos(x, y), velocity(vx, vy), smelliness(smelliness) {}
 
 glm::ivec2 Person::getGridIndex() const {
-    return glm::ivec2(static_cast<int>(pos[0]), static_cast<int>(pos[1]));
+  return glm::ivec2(static_cast<int>(pos[0]), static_cast<int>(pos[1]));
 }
 
 Cell *Person::getCell(Grid &grid) {
-    return grid.getCell(static_cast<int>(pos[0]), static_cast<int>(pos[1]));
+  return grid.getCell(static_cast<int>(pos[0]), static_cast<int>(pos[1]));
 }
 
 glm::vec2 Person::getPos() {
-    return pos;
+  return pos;
 }
 
 glm::vec2 Person::getVelocity() {
-    return velocity;
+  return velocity;
 }
 
 void Person::setPos(glm::vec2 pos) {
-    this->pos = pos;
+  this->pos = pos;
 }
 
 void Person::setVelocity(glm::vec2 pos) {
-    this->velocity = velocity;
+  this->velocity = velocity;
 }

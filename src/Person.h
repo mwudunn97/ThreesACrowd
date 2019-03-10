@@ -10,26 +10,26 @@
 
 class Person {
 public:
-    Person();
-    Person(glm::vec2 pos, glm::vec2 velocity, float smelliness);
-    Person(float x, float y, float vx, float vy, float smelliness);
+  Person();
+  Person(glm::vec2 pos, glm::vec2 velocity, float smelliness);
+  Person(float x, float y, float vx, float vy, float smelliness);
 
-    /* Grid index of current position */
-    glm::ivec2 getGridIndex() const;
+  /* Grid index of current position */
+  glm::ivec2 getGridIndex() const;
 
-    /* Cell of current position */
-    Cell *getCell(Grid &grid);
+  /* Cell of current position */
+  Cell *getCell(Grid &grid);
 
-    glm::vec2 getPos();
-    glm::vec2 getVelocity();
-    void setPos(glm::vec2 pos);
-    void setVelocity(glm::vec2 pos);
+  glm::vec2 getPos();
+  glm::vec2 getVelocity();
+  void setPos(glm::vec2 pos);
+  void setVelocity(glm::vec2 pos);
 
 private:
-    glm::vec2 pos;
-    glm::vec2 velocity;
+  glm::vec2 pos;
+  glm::vec2 velocity;
 
-    float smelliness;
+  float smelliness;
 };
 
 
