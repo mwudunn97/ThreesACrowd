@@ -30,6 +30,7 @@ void Grid::fill() {
           &edges[edgeS_idx + width],
           &edges[edgeS_idx]);
     }
+
   }
 
   /* Attach neighbors */
@@ -56,8 +57,8 @@ Grid::Grid(json &j) {
   gamma =   j["gamma"];
   rho_min = j["rho_min"];
   rho_max = j["rho_max"];
-  f_min = j["f_min"];
-  f_max = j["f_max"];
+  f_min =   j["f_min"];
+  f_max =   j["f_max"];
 
   fill();
 }

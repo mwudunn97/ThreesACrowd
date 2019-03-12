@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.12)
 project(ThreesACrowd)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -35,3 +35,4 @@ add_executable(ThreesACrowd
         ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+
