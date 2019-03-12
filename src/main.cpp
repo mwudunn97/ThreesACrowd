@@ -11,6 +11,8 @@
 #include "Grid.h"
 #include "Person.h"
 #include <json.hpp>
+#include <GL/gl.h>
+#include <GL/glut.h>
 
 using json = nlohmann::json;
 
