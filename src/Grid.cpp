@@ -30,6 +30,7 @@ void Grid::fill() {
           &edges[edgeS_idx + width],
           &edges[edgeS_idx]);
     }
+
   }
 
   /* Attach neighbors */

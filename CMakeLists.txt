@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.12)
 project(ThreesACrowd)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -18,7 +18,7 @@ file(GLOB_RECURSE HEADER_FILES
         ${CMAKE_SOURCE_DIR}/src/*.h
         ${CMAKE_SOURCE_DIR}/src/*.hpp)
 
-include_directories(src glm nlohmann)
+include_directories(src glm nlohmann glut)
 
 add_executable(ThreesACrowd
         .idea/encodings.xml
@@ -29,4 +29,4 @@ add_executable(ThreesACrowd
         .idea/workspace.xml
         README.md
         ${HEADER_FILES}
-        ${SOURCE_FILES})
+        ${SOURCE_FILES} src/PointWriter.cpp)
