@@ -6,7 +6,8 @@
 #define THREESACROWD_PERSON_H
 
 #include <glm/vec2.hpp>
-#include "Grid.h"
+
+class Cell;
 
 class Person {
 public:

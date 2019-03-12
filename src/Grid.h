@@ -9,7 +9,9 @@
 #include <glm/vec2.hpp>
 #include <vector>
 #include <array>
+#include <unordered_map>
 #include <json.hpp>
+#include "Person.h"
 
 using json = nlohmann::json;
 
@@ -70,9 +72,9 @@ public:
   Cell *getCell(int i, int j);
   Cell *getCell(glm::ivec2 ij);
 
-
   std::vector<std::vector<Cell>> grid;
   std::vector<Edge> edges;
+  std::unordered_map<float, std::vector<Person *> *> map;
 
   int width;
   int height;
@@ -88,8 +90,12 @@ public:
   float s_min;   // eqn. 8
   float s_max;   // eqn. 8
 
+  void build_neighbor_map(std::vector<Person> &people);
+  void handle_collisions(Person &person);
+
 private:
   void fill();
+  float hash_position(glm::vec2 pos);
 };
 
 
