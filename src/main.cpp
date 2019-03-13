@@ -227,7 +227,7 @@ void test_structures() {
 
   Grid grid(4, 3);
 
-  Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
+  Person dalton(2.6f, 1.3f, 0, 0, 1, 1, -5.0f);
   Cell *daltonCell = dalton.getCell(grid); // 2,1
   daltonCell->g = 1234;
   daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
