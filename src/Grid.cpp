@@ -2,6 +2,7 @@
 // Created by Dalton on 2/24/2019.
 //
 
+#include <glm/glm.hpp>
 #include "Grid.h"
 
 Cell::Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS) {
@@ -91,6 +92,7 @@ void Grid::handle_collisions(Person &person) {
       // if these two persons collide, move this one away from the other
       glm::vec2 dir = person.getPos() - other->getPos();
       if (glm::length(dir) < 1.0) {
+        glm::length(dir);
         total_correction += (1.0 - glm::length(dir)) * (dir / glm::length(dir));
         num_corrections++;
       }
