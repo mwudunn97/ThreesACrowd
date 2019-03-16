@@ -6,6 +6,8 @@
 #define THREESACROWD_PERSON_H
 
 #include <glm/vec2.hpp>
+#include "Grid.h"
+#include <vector>
 
 struct Cell;
 class Grid;
@@ -35,6 +37,13 @@ private:
   glm::vec2 goal;
 
   float smelliness;
+};
+
+struct Group {
+  Group(glm::vec2 goal, std::vector<Person> people);
+
+  glm::vec2 goal;
+  std::vector<Person> people;
 };
 
 

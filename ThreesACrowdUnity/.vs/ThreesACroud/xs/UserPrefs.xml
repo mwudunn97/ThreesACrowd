@@ -1,0 +1,17 @@
+﻿<Properties StartupConfiguration="{FFAD99AB-0874-C257-1E4F-988090EF378D}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scenes/locations.txt">
+    <Files>
+      <File FileName="Assets/Scripts/ReadPoints.cs" Line="20" Column="13" />
+      <File FileName="Assets/Scripts/PersonScript.cs" Line="12" Column="3" />
+      <File FileName="Assets/Scripts/Time.cs" Line="29" Column="22" />
+      <File FileName="Assets/Scenes/locations.txt" Line="2" Column="11" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

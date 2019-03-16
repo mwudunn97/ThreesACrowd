@@ -42,6 +42,5 @@ void Person::setVelocity(glm::vec2 pos) {
   this->velocity = velocity;
 }
 
-void Person::setGoal(glm::vec2 goal) {
-  this->goal = goal;
-}
+Group::Group(glm::vec2 goal, std::vector<Person> people)
+ : goal(goal), people(std::move(people)) {}

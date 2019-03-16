@@ -11,6 +11,7 @@
 #include "Grid.h"
 #include "Person.h"
 #include <json.hpp>
+#include <GL/glut.h>
 
 using json = nlohmann::json;
 
@@ -123,6 +124,87 @@ void construct_dynamic_potential_field(Grid &grid) {
   return;
 }
 
+void finite_differences_approx(Grid &grid, int i, int j) {
+  Cell *cell = grid.getCell(i, j);
+  glm::vec2 m_x;
+  glm::vec2 m_y;
+  float phi_mx;
+  float phi_my;
+  Direction d_mx;
+  Direction d_my;
+
+  //Check boundary cases
+  if (i - 1 < 0) {
+    m_x = glm::vec2(i + 1, j);
+    d_mx = East;
+  } else if (i + 1 > grid.getWidth()) {
+    m_x = glm::vec2(i - 1, j);
+    d_mx = West;
+  } else {
+    //Otherwise, choose minimum phi + index between west/east directions
+    float phi_wx = grid.getCell(i - 1, j)->phi + cell->C[West];
+    float phi_ex = grid.getCell(i + 1, j)->phi + cell->C[East];
+
+    if (phi_wx < phi_ex) {
+      m_x = glm::vec2(i - 1, j);
+      phi_mx = phi_wx;
+      d_mx = West;
+    } else {
+      m_x = glm::vec2(i + 1, j);
+      phi_mx = phi_ex;
+      d_mx = East;
+    }
+  }
+  //Check boundary cases
+  if (j - 1 < 0) {
+    m_x = glm::vec2(i, j + 1);
+    d_my = North;
+  } else if (j + 1 > grid.getHeight()) {
+    m_x = glm::vec2(i, j - 1);
+    d_my = South;
+  } else {
+    //Otherwise, choose minimum phi + index between north/south directions
+    float phi_ny = grid.getCell(i, j + 1)->phi + cell->C[North];
+    float phi_sy = grid.getCell(i, j - 1)->phi + cell->C[South];
+
+    if (phi_sy < phi_ny) {
+      m_x = glm::vec2(i, j - 1);
+      phi_my = phi_sy;
+      d_my = South;
+    } else {
+      m_x = glm::vec2(i, j + 1);
+      phi_my = phi_ny;
+      d_my = North;
+    }
+  }
+
+  //Set the different terms of the quadratic equation
+  float c_mx = cell->C[d_mx];
+  float c_my = cell->C[d_my];
+  float phi_m;
+
+  //If one of the terms is undefined, remove it from the quadratic equation
+  if (std::isinf(phi_mx)) {
+      float det = c_mx;
+      phi_m = phi_mx + std::sqrt(det);
+  } else if (std::isinf(phi_my)) {
+      float det = c_my;
+      phi_m = phi_my + std::sqrt(det);
+  } else {
+      float a = c_mx + c_my;
+      float b = 2.0f * (c_my * phi_mx + c_mx * phi_my);
+      float c = (c_my * phi_mx * phi_mx) + (c_mx * phi_my * phi_my) - (c_mx * c_my);
+      float det = b * b - 4.0f * a * c;
+      phi_m = (-1.0f * b + std::sqrt(det)) / (2.0f * a);
+  }
+
+  cell->phi = phi_m;
+  cell->edges[d_mx]->phi_grad.x = phi_m - phi_mx;
+  cell->edges[d_my]->phi_grad.y = phi_m - phi_my;
+
+
+}
+
 
 void crowd_avection(Grid &grid, std::vector<Person> &people) {
   // TODO 4.4: update each person's position by interpolating into the vector
@@ -145,7 +227,7 @@ void test_structures() {
 
   Grid grid(4, 3);
 
-  Person dalton(2.6f, 1.3f, 0, 0, 0, 0, -5.0f);
+  Person dalton(2.6f, 1.3f, 0, 0, 1, 1, -5.0f);
   Cell *daltonCell = dalton.getCell(grid); // 2,1
   daltonCell->g = 1234;
   daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
@@ -168,6 +250,7 @@ int load_config(json &j, char *config) {
 }
 
 int main(int argc, char* argv[]) {
+  std::cout << "Three's A Crowd Simulator" << std::endl;
   // test_structures();
 
   if (argc < 2) {
@@ -180,4 +263,5 @@ int main(int argc, char* argv[]) {
   }
 
   Grid grid(j);
+  return 0;
 }
