@@ -281,7 +281,10 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
+  int iterations = j["iterations"];
+  for (int i = 0; i < iterations; i++) {
 
+  }
 
   return 0;
 }
