@@ -210,29 +210,33 @@ void finite_differences_approx(Grid &grid, int i, int j) {
 }
 
 
-void crowd_advection(Grid &grid, Group &group) {
+void crowd_advection(Grid &grid, std::vector<Group> &groups) {
   // TODO 4.4: update each person's position by interpolating into the vector
   // field
-  std::vector<Person> &people = group.people;
+  for (Group &group : groups) {
+    std::vector<Person> &people = group.people;
 
-  for (auto &person : people) {
-    person.setPos(person.getPos() + person.getCell(grid)->v_avg);
+    for (auto &person : people) {
+      person.setPos(person.getPos() + person.getCell(grid)->v_avg);
+    }
   }
 }
 
 
-void enforce_minimum_distance(Grid &grid, Group &group) {
+void enforce_minimum_distance(Grid &grid, std::vector<Group> &groups) {
   // TODO 4.5: iterate over all pairs in a threshold distance and push people
   // apart symmetrically until min. distance is reached. may instead use a
   // neighbor grid instead of the vector of Persons.
 
-  // generate spatial map
-  std::vector<Person> &people = group.people;
-  grid.build_neighbor_map(people);
+  for (Group &group : groups) {
+    // generate spatial map
+    std::vector<Person> &people = group.people;
+    grid.build_neighbor_map(people);
 
-  // run pair-wise minimum distance enforcement for each person
-  for (auto &person : people) {
-    grid.handle_collisions(person);
+    // run pair-wise minimum distance enforcement for each person
+    for (auto &person : people) {
+      grid.handle_collisions(person);
+    }
   }
 }
 
