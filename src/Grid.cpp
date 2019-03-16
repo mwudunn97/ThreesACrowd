@@ -51,13 +51,13 @@ float Grid::hash_position(glm::vec2 pos) {
   double subdiv_factor = 5.0;
 
   // calculate bounds of this rectangle
-  double w = std::min(1.0, width / subdiv_factor); 
-  double h = std::min(1.0, height / subdiv_factor); 
+  double w = std::min(1.0, width / subdiv_factor);
+  double h = std::min(1.0, height / subdiv_factor);
 
   // calculate floor
   double x = floor(pos[0] / w);
   double y = floor(pos[0] / h);
-  return x * 31 + y;
+  return (float) (x * 31 + y);
 }
 
 // construct a spatial map of neighbors for all people
@@ -93,7 +93,7 @@ void Grid::handle_collisions(Person &person) {
       glm::vec2 dir = person.getPos() - other->getPos();
       if (glm::length(dir) < 1.0) {
         glm::length(dir);
-        total_correction += (1.0 - glm::length(dir)) * (dir / glm::length(dir));
+        total_correction += (1.0f - glm::length(dir)) * (dir / glm::length(dir));
         num_corrections++;
       }
     }

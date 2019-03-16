@@ -7,7 +7,7 @@
 
 #include <glm/vec2.hpp>
 
-class Cell;
+struct Cell;
 class Grid;
 
 class Person {
