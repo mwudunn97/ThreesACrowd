@@ -121,6 +121,7 @@ Grid::Grid(json &j) {
   rho_max = j["rho_max"];
   f_min =   j["f_min"];
   f_max =   j["f_max"];
+  lambda =  j["lambda"];
 
   fill();
 }

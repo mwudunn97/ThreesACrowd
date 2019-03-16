@@ -15,10 +15,11 @@
 
 using json = nlohmann::json;
 
-void density_conversion(Grid &grid, std::vector<Group> &groups, double lambda) {
+void density_conversion(Grid &grid, std::vector<Group> &groups) {
   // TODO 4.1: convert positions of Persons into densities and
   // insert into Grid. Also calculate average velocities of each cell.
 
+  double lambda = grid.lambda;
   for (auto &group : groups) {
     std::vector<Person> &people = group.people;
 
@@ -210,15 +211,13 @@ void finite_differences_approx(Grid &grid, int i, int j) {
 }
 
 
-void crowd_advection(Grid &grid, std::vector<Group> &groups) {
+void crowd_advection(Grid &grid, Group &group) {
   // TODO 4.4: update each person's position by interpolating into the vector
   // field
-  for (Group &group : groups) {
-    std::vector<Person> &people = group.people;
+  std::vector<Person> &people = group.people;
 
-    for (auto &person : people) {
-      person.setPos(person.getPos() + person.getCell(grid)->v_avg);
-    }
+  for (auto &person : people) {
+    person.setPos(person.getPos() + person.getCell(grid)->v_avg);
   }
 }
 
@@ -290,18 +289,27 @@ int main(int argc, char* argv[]) {
   }
   json j;
   if (load_config(j, argv[1])) {
+    std::cerr << "Error loading config file" << std::endl;
     return -1;
   }
 
   Grid grid(j);
   std::vector<Group> groups;
   if (load_groups(j, &groups)) {
+    std::cerr << "Error loading groups from config file" << std::endl;
     return -1;
   }
 
   int iterations = j["iterations"];
   for (int i = 0; i < iterations; i++) {
-
+    density_conversion(grid, groups);
+    calculate_unit_cost(grid);
+    for (Group &group : groups) {
+      construct_dynamic_potential_field(grid);
+      crowd_advection(grid, group);
+    }
+    enforce_minimum_distance(grid, groups);
   }
+
   return 0;
 }

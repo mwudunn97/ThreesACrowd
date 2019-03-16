@@ -89,6 +89,7 @@ public:
   float f_max;   // eqn. 8
   float s_min;   // eqn. 8
   float s_max;   // eqn. 8
+  double lambda; // section 4.1
 
   void build_neighbor_map(std::vector<Person> &people);
   void handle_collisions(Person &person);

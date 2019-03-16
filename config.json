@@ -5,6 +5,7 @@
 "alpha" : 1.0,
 "beta"  : 1.0,
 "gamma" : 1.0,
+"lambda" : 0.1,
 
 "rho_min" : 0.1,
 "rho_max" : 0.9,
