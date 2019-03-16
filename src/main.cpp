@@ -223,7 +223,15 @@ void enforce_minimum_distance(Grid &grid, Group &group) {
   // TODO 4.5: iterate over all pairs in a threshold distance and push people
   // apart symmetrically until min. distance is reached. may instead use a
   // neighbor grid instead of the vector of Persons.
-  return;
+
+  // generate spatial map
+  std::vector<Person> &people = group.people;
+  grid.build_neighbor_map(people);
+
+  // run pair-wise minimum distance enforcement for each person
+  for (auto &person : people) {
+    grid.handle_collisions(person);
+  }
 }
 
 void test_structures() {
