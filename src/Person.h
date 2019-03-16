@@ -6,7 +6,6 @@
 #define THREESACROWD_PERSON_H
 
 #include <glm/vec2.hpp>
-#include "Grid.h"
 #include <vector>
 
 struct Cell;
@@ -15,8 +14,8 @@ class Grid;
 class Person {
 public:
   Person();
-  Person(glm::vec2 pos, glm::vec2 velocity, glm::vec2 goal, float smelliness);
-  Person(float x, float y, float vx, float vy, float gx, float gy, float smelliness);
+  Person(glm::vec2 pos, glm::vec2 velocity, float smelliness);
+  Person(float x, float y, float vx, float vy, float smelliness);
 
   /* Grid index of current position */
   glm::ivec2 getGridIndex() const;
@@ -34,7 +33,6 @@ public:
 private:
   glm::vec2 pos;
   glm::vec2 velocity;
-  glm::vec2 goal;
 
   float smelliness;
 };

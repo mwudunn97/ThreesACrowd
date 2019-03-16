@@ -239,7 +239,7 @@ void test_structures() {
 
   Grid grid(4, 3);
 
-  Person dalton(2.6f, 1.3f, 0, 0, 1, 1, -5.0f);
+  Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
   Cell *daltonCell = dalton.getCell(grid); // 2,1
   daltonCell->g = 1234;
   daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
@@ -261,6 +261,19 @@ int load_config(json &j, char *config) {
   return 0;
 }
 
+int load_groups(json &j, std::vector<Group> *groups) {
+  for (auto &group : j["groups"]) {
+    std::vector<Person> people;
+    for (auto &person : group["people"]) {
+      people.emplace_back(person[0], person[1], person[2], person[3], person[4]);
+    }
+    glm::vec2 goal(group["goal"][0], group["goal"][1]);
+    groups->emplace_back(goal, people);
+  }
+
+  return 0;
+}
+
 int main(int argc, char* argv[]) {
   std::cout << "Three's A Crowd Simulator" << std::endl;
   // test_structures();
@@ -275,5 +288,14 @@ int main(int argc, char* argv[]) {
   }
 
   Grid grid(j);
+  std::vector<Group> groups;
+  if (load_groups(j, &groups)) {
+    return -1;
+  }
+
+  int iterations = j["iterations"];
+  for (int i = 0; i < iterations; i++) {
+
+  }
   return 0;
 }
