@@ -62,7 +62,7 @@ float Grid::hash_position(glm::vec2 pos) {
 }
 
 // construct a spatial map of neighbors for all people
-void Grid::build_neighbor_map(std::vector<Person> &people) {
+void Grid::build_neighbor_map(std::vector<Group> &group) {
   // clear entries
   for (const auto &entry : map) {
     delete(entry.second);
@@ -70,12 +70,15 @@ void Grid::build_neighbor_map(std::vector<Person> &people) {
   map.clear();
 
   // hash each person into the map
-  for (auto &person : people) {
-    float hash = hash_position(person.getPos());
-    if (map[hash] == NULL) {
-      map[hash] = new std::vector<Person *>();
-    }
-    map[hash]->push_back(&person);
+  for (auto &group : group) {
+      std::vector<Person> &people = group.people;
+      for (auto &person : people) {
+          float hash = hash_position(person.getPos());
+          if (map[hash] == NULL) {
+              map[hash] = new std::vector<Person *>();
+          }
+          map[hash]->push_back(&person);
+      }
   }
 }
 
