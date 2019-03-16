@@ -15,9 +15,11 @@
 
 using json = nlohmann::json;
 
-void density_conversion(Grid &grid, std::vector<Person> &people, double lambda) {
+void density_conversion(Grid &grid, Group &group, double lambda) {
   // TODO 4.1: convert positions of Persons into densities and
   // insert into Grid. Also calculate average velocities of each cell.
+
+  std::vector<Person> &people = group.people;
 
   int width = grid.getWidth();
   int height = grid.getHeight();
@@ -206,20 +208,30 @@ void finite_differences_approx(Grid &grid, int i, int j) {
 }
 
 
-void crowd_avection(Grid &grid, std::vector<Person> &people) {
+void crowd_advection(Grid &grid, Group &group) {
   // TODO 4.4: update each person's position by interpolating into the vector
   // field
+  std::vector<Person> &people = group.people;
+
   for (auto &person : people) {
     person.setPos(person.getPos() + person.getCell(grid)->v_avg);
   }
 }
 
 
-void enforce_minimum_distsance(Grid &grid, std::vector<Person> &people) {
+void enforce_minimum_distance(Grid &grid, Group &group) {
   // TODO 4.5: iterate over all pairs in a threshold distance and push people
   // apart symmetrically until min. distance is reached. may instead use a
   // neighbor grid instead of the vector of Persons.
-  return;
+
+  // generate spatial map
+  std::vector<Person> &people = group.people;
+  grid.build_neighbor_map(people);
+
+  // run pair-wise minimum distance enforcement for each person
+  for (auto &person : people) {
+    grid.handle_collisions(person);
+  }
 }
 
 void test_structures() {
@@ -285,6 +297,5 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < iterations; i++) {
 
   }
-
   return 0;
 }

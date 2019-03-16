@@ -6,8 +6,10 @@
 #define THREESACROWD_PERSON_H
 
 #include <glm/vec2.hpp>
-#include "Grid.h"
 #include <vector>
+
+struct Cell;
+class Grid;
 
 class Person {
 public:
@@ -23,8 +25,10 @@ public:
 
   glm::vec2 getPos();
   glm::vec2 getVelocity();
+  glm::vec2 getGoal();
   void setPos(glm::vec2 pos);
   void setVelocity(glm::vec2 pos);
+  void setGoal(glm::vec2 goal);
 
 private:
   glm::vec2 pos;

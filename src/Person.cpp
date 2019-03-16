@@ -3,6 +3,7 @@
 //
 
 #include "Person.h"
+#include "Grid.h"
 
 Person::Person()
 : pos(0, 0), velocity(0, 0), smelliness(0.0f) {}
