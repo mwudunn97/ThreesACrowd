@@ -12,6 +12,7 @@
 #include "Person.h"
 #include <json.hpp>
 #include <GL/glut.h>
+#include <algorithm>
 
 using json = nlohmann::json;
 
@@ -118,93 +119,128 @@ void calculate_unit_cost(Grid &grid) {
   }
 }
 
-
-void construct_dynamic_potential_field(Grid &grid) {
-  // TODO 4.3: use fast-marching algorithm to calculate the potentials
-  // and potential gradients (phi and del phi)
-  // also calculate the velocity field of velocities v
-  return;
+std::vector<Cell*> flatten(Grid &grid) {
+  std::vector<Cell*> result;
+  for (int j = 0; j < grid.width; j++) {
+    for (int i = 0; i < grid.height; i++) {
+      result.push_back(grid.getCell(i, j));
+    }
+  }
+  return result;
 }
 
-void finite_differences_approx(Grid &grid, int i, int j) {
-  Cell *cell = grid.getCell(i, j);
-  glm::vec2 m_x;
-  glm::vec2 m_y;
+
+void finite_differences_approx(Cell &cell) {
   float phi_mx;
   float phi_my;
   Direction d_mx;
   Direction d_my;
 
   //Check boundary cases
-  if (i - 1 < 0) {
-    m_x = glm::vec2(i + 1, j);
+  if (cell.neighbors[West] == NULL) {
+    phi_mx = cell.neighbors[East]->phi + cell.C[East];
     d_mx = East;
-  } else if (i + 1 > grid.getWidth()) {
-    m_x = glm::vec2(i - 1, j);
+  } else if (cell.neighbors[East] == NULL) {
+    phi_mx = cell.neighbors[East]->phi + cell.C[East];
     d_mx = West;
   } else {
     //Otherwise, choose minimum phi + index between west/east directions
-    float phi_wx = grid.getCell(i - 1, j)->phi + cell->C[West];
-    float phi_ex = grid.getCell(i + 1, j)->phi + cell->C[East];
+    float phi_wx = cell.neighbors[West]->phi + cell.C[West];
+    float phi_ex = cell.neighbors[East]->phi + cell.C[East];
 
     if (phi_wx < phi_ex) {
-      m_x = glm::vec2(i - 1, j);
       phi_mx = phi_wx;
       d_mx = West;
     } else {
-      m_x = glm::vec2(i + 1, j);
       phi_mx = phi_ex;
       d_mx = East;
     }
   }
   //Check boundary cases
-  if (j - 1 < 0) {
-    m_x = glm::vec2(i, j + 1);
+  if (cell.neighbors[South] == NULL) {
+    phi_my = cell.neighbors[North]->phi + cell.C[North];
     d_my = North;
-  } else if (j + 1 > grid.getHeight()) {
-    m_x = glm::vec2(i, j - 1);
+  } else if (cell.neighbors[North] == NULL) {
+    phi_my = cell.neighbors[South]->phi + cell.C[South];
     d_my = South;
   } else {
     //Otherwise, choose minimum phi + index between north/south directions
-    float phi_ny = grid.getCell(i, j + 1)->phi + cell->C[North];
-    float phi_sy = grid.getCell(i, j - 1)->phi + cell->C[South];
+    float phi_ny = cell.neighbors[North]->phi + cell.C[North];
+    float phi_sy = cell.neighbors[South]->phi + cell.C[South];
 
     if (phi_sy < phi_ny) {
-      m_x = glm::vec2(i, j - 1);
       phi_my = phi_sy;
       d_my = South;
     } else {
-      m_x = glm::vec2(i, j + 1);
       phi_my = phi_ny;
       d_my = North;
     }
   }
 
   //Set the different terms of the quadratic equation
-  float c_mx = cell->C[d_mx];
-  float c_my = cell->C[d_my];
+  float c_mx = cell.C[d_mx];
+  float c_my = cell.C[d_my];
   float phi_m;
 
   //If one of the terms is undefined, remove it from the quadratic equation
+  //Otherwise, calculate the phi_m for the cell, and update velocities using speed field
   if (std::isinf(phi_mx)) {
-      float det = c_mx;
-      phi_m = phi_mx + std::sqrt(det);
+    float det = c_mx;
+    phi_m = phi_my + std::sqrt(det);
+    cell.edges[d_my]->phi_grad = phi_m - phi_my;
+    cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
   } else if (std::isinf(phi_my)) {
-      float det = c_my;
-      phi_m = phi_my + std::sqrt(det);
+    float det = c_my;
+    phi_m = phi_mx + std::sqrt(det);
+    cell.edges[d_mx]->phi_grad = phi_m - phi_mx;
+    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
   } else {
-      float a = c_mx + c_my;
-      float b = 2.0f * (c_my * phi_mx + c_mx * phi_my);
-      float c = (c_my * phi_mx * phi_mx) + (c_mx * phi_my * phi_my) - (c_mx * c_my);
-      float det = b * b - 4.0f * a * c;
-      phi_m = (-1.0f * b + std::sqrt(det)) / (2.0f * a);
+    float a = c_mx + c_my;
+    float b = 2.0f * (c_my * phi_mx + c_mx * phi_my);
+    float c = (c_my * phi_mx * phi_mx) + (c_mx * phi_my * phi_my) - (c_mx * c_my);
+    float det = b * b - 4.0f * a * c;
+    phi_m = (-1.0f * b + std::sqrt(det)) / (2.0f * a);
+
+    cell.edges[d_mx]->phi_grad = phi_m - phi_mx;
+    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    cell.edges[d_my]->phi_grad = phi_m - phi_my;
+    cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+  }
+    cell.phi = phi_m;
+
+
+
+
+}
+
+//Compare function for the heap
+bool cmp(const Cell * a, const Cell * b) {
+  //overloaded < compare, see Cell
+  //tbh could have just compared it directly here but wrote this after rip
+  return *a < *b;
+}
+
+
+void construct_dynamic_potential_field(Grid &grid, glm::ivec2 goal) {
+  // TODO 4.3: use fast-marching algorithm to calculate the potentials
+  // and potential gradients (phi and del phi)
+  // also calculate the velocity field of velocities v
+  std::vector<Cell*> flattened_grid = flatten(grid);
+  int goal_index = goal[1] * grid.getWidth() + goal[0];
+  flattened_grid[goal_index]->phi = 0;
+  std::make_heap(flattened_grid.begin(), flattened_grid.end(), cmp);
+  for (int i = 0; i < flattened_grid.size(); i++) {
+    Cell* next = flattened_grid.front();
+    std::pop_heap (flattened_grid.begin(),flattened_grid.end()); flattened_grid.pop_back();
+
+    for (Cell *c : next->neighbors) {
+      if (c != nullptr) finite_differences_approx(*c);
+    }
+    finite_differences_approx(*next);
+    std::make_heap(flattened_grid.begin(), flattened_grid.end() - i);
   }
 
-  cell->phi = phi_m;
-  cell->edges[d_mx]->phi_grad.x = phi_m - phi_mx;
-  cell->edges[d_my]->phi_grad.y = phi_m - phi_my;
-
-
+  return;
 }
 
 
@@ -251,6 +287,21 @@ void test_structures() {
   std::cout << "-9: " << smth << std::endl;
 }
 
+void test_potential_field() {
+  Grid grid(4, 3);
+
+  Person dalton(2.6f, 1.3f, 0.0f, 0.0f, -5.0f);
+  Cell *daltonCell = dalton.getCell(grid); // 2,1
+  daltonCell->g = 1234;
+  daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
+  Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
+  std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
+  std::cout << daltonAbove->neighbors[South]->g << std::endl;
+
+  float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
+  construct_dynamic_potential_field(grid, glm::ivec2(0,0));
+}
+
 int load_config(json &j, char *config) {
   std::ifstream f(config);
   if (!f.good()) {
@@ -277,15 +328,16 @@ int load_groups(json &j, std::vector<Group> *groups) {
 int main(int argc, char* argv[]) {
   std::cout << "Three's A Crowd Simulator" << std::endl;
   // test_structures();
+  test_potential_field();
 
   if (argc < 2) {
     std::cerr << "Please specify a configuration file" << std::endl;
     return -1;
   }
   json j;
-  if (load_config(j, argv[1])) {
-    return -1;
-  }
+//  if (load_config(j, argv[1])) {
+//    return -1;
+//  }
 
   Grid grid(j);
   std::vector<Group> groups;

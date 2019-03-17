@@ -10,7 +10,9 @@ Cell::Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS) {
   edges[North] = edgeN;
   edges[West] = edgeW;
   edges[South] = edgeS;
+  this->phi = std::numeric_limits<float>::infinity();
 }
+
 
 void Grid::fill() {
   /* Create edges first */
@@ -42,6 +44,23 @@ void Grid::fill() {
       if (j < height - 1) grid[j][i].neighbors[North] = &grid[j+1][i];
       if (j > 0) grid[j][i].neighbors[South] = &grid[j-1][i];
     }
+  }
+}
+
+void Grid::clearGridVals() {
+
+  for (int j = 0; j < width; j++) {
+    for (int i = 0; i < height; i++) {
+      Cell * cell = getCell(i, j);
+      cell->phi = std::numeric_limits<float>::infinity();
+      for (int dir = East; dir <= South; dir++) {
+        /* dir = direction we're coming FROM. Therefore, n_theta is negated */
+        Edge *e = cell->edges[dir];
+        e->phi_grad = 0.0f;
+        e->v = 0.0f;
+      }
+    }
+
   }
 }
 

@@ -24,8 +24,8 @@ enum Direction {
 
 struct Edge {
   glm::vec2 h_grad;
-  glm::vec2 phi_grad;
-  glm::vec2 v;
+  float phi_grad;
+  float v;
 };
 
 /* n sub theta vector representing unit directions in the
@@ -57,6 +57,16 @@ struct Cell {
 
   /* Neighbors */
   std::array<Cell*, 4> neighbors;
+  bool operator<(const Cell &other) const {
+    float p = phi;
+    float op = other.phi;
+    return other.phi < phi;
+  }
+
+  //Operator overload, compare phi
+  bool operator>(const Cell &other) const {
+    return phi > other.phi;
+  }
 };
 
 /* Row-major grid
@@ -68,6 +78,8 @@ public:
 
   int getWidth() const;
   int getHeight() const;
+
+  void clearGridVals();
 
   Cell *getCell(int i, int j);
   Cell *getCell(glm::ivec2 ij);
