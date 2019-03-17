@@ -73,7 +73,9 @@ void density_conversion(Grid &grid, std::vector<Group> &groups) {
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
         Cell *cell = grid.getCell(i, j);
-        cell->v_avg /= cell->rho;
+        if (cell->rho > 0) {
+            cell->v_avg /= cell->rho;
+        }
       }
     }
   }
