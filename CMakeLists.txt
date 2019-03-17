@@ -32,7 +32,7 @@ add_executable(ThreesACrowd
         .idea/workspace.xml
         README.md
         ${HEADER_FILES}
-        ${SOURCE_FILES})
+        ${SOURCE_FILES} src/pointDisplay.h)
 
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 

@@ -12,6 +12,7 @@
 #include "Person.h"
 #include <json.hpp>
 #include <algorithm>
+#include <pointDisplay.h>
 
 using json = nlohmann::json;
 
@@ -342,6 +343,15 @@ int main(int argc, char* argv[]) {
   // test_structures();
   test_potential_field();
 
+  /* Init point display */
+  pointDisplay(argc, argv);
+
+  /* Display points function, replace with actual point vector */
+  //display_points(points);
+
+  /* Write points to a file */
+  //write_points(points, filename);
+
   if (argc < 2) {
     std::cerr << "Please specify a configuration file" << std::endl;
     return -1;
@@ -371,6 +381,7 @@ int main(int argc, char* argv[]) {
     }
     enforce_minimum_distance(grid, groups);
   }
+
 
   return 0;
 }
