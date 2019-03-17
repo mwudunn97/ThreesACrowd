@@ -55,17 +55,6 @@ struct Cell {
 
   /* Neighbors */
   std::array<Cell*, 4> neighbors;
-
-  bool operator<(const Cell &other) const {
-    float p = phi;
-    float op = other.phi;
-    return other.phi < phi;
-  }
-
-  //Operator overload, compare phi
-  bool operator>(const Cell &other) const {
-    return phi > other.phi;
-  }
 };
 
 /* Row-major grid

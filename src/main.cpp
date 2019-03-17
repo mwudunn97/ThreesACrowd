@@ -128,7 +128,7 @@ void calculate_unit_cost(Grid &grid) {
           float cost = (grid.alpha * cell.f[dir] + grid.beta + grid.gamma * cell.neighbors[dir]->g) / cell.f[dir];
           cell.C[dir] = cost;
         } else {
-          cell.C[dir] = 999999999.0f;
+          cell.C[dir] = 9999999.0f;
         }
       }
     }
@@ -230,7 +230,7 @@ void finite_differences_approx(Cell &cell) {
 bool cmp(const Cell * a, const Cell * b) {
   //overloaded < compare, see Cell
   //tbh could have just compared it directly here but wrote this after rip
-  return *a < *b;
+  return (*a).phi < (*b).phi;
 }
 
 
