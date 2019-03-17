@@ -23,7 +23,8 @@ enum Direction {
 };
 
 struct Edge {
-  glm::vec2 h_grad;
+  /* Positive is Northward and Eastward */
+  float h_grad;
   float phi_grad;
   float v;
 };
@@ -31,13 +32,10 @@ struct Edge {
 /* n sub theta vector representing unit directions in the
  * order in the paper: E, N, W, S.
  * Direction "OUT" of a cell */
-const std::array<glm::vec2, 4> n_theta {{
-    {1.0f, 0.0f},
-    {0.0f, 1.0f},
-    {-1.0f, 0.0f},
-    {0.0f, -1.0f}
-  }
-};
+const std::array<int, 4> n_theta_int {1, 1, -1, -1};
+const std::array<glm::vec2, 4> n_theta_vec {{
+  {1, 0}, {0, 1}, {-1, 0}, {0, -1}
+}};
 
 struct Cell {
   Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS);
@@ -49,7 +47,7 @@ struct Cell {
   float h = 0;
   glm::vec2 v_avg {};
 
-  /* Going INTO this cell: E,N,W,S */
+  /* Going OUT OF this cell: E,N,W,S */
   glm::vec4 f {};
   glm::vec4 C {};
 
@@ -57,6 +55,7 @@ struct Cell {
 
   /* Neighbors */
   std::array<Cell*, 4> neighbors;
+
   bool operator<(const Cell &other) const {
     float p = phi;
     float op = other.phi;

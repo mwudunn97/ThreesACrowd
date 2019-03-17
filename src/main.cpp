@@ -90,37 +90,46 @@ void calculate_unit_cost(Grid &grid) {
   // TODO 4.2: iterate over each of 4 directions of each cell
   // and calculate f_{M->i} and {C_M->i} where i is in {N, E, S, W}
 
-  /* To make things easier, we iterate through speed/cost going INTO a cell because you have
-  * to use the fields from the cell you're going into, not the one you came from */
   for (auto &row : grid.grid) {
     for (auto &cell : row) {
       for (int dir = East; dir <= South; dir++) {
-        /* dir = direction we're coming FROM. Therefore, n_theta is negated */
+        /* dir = direction we're going TOWARDS */
         Edge *e = cell.edges[dir];
 
         /* Equation 8: topographical speed */
-        float slope = (glm::dot(e->h_grad, -n_theta[dir]) - grid.s_min) /
+        float slope = ((e->h_grad * n_theta_int[dir]) - grid.s_min) /
             (grid.s_max - grid.s_min);
         float topo_speed = grid.f_max + slope * (grid.f_min - grid.f_max);
 
         /* Equation 9: flow speed */
-        float flow_speed = glm::dot(cell.v_avg, -n_theta[dir]);
-        if (flow_speed < 0.0f) flow_speed = 0.0f;
+        float flow_speed;
+        if (cell.neighbors[dir]) {
+          flow_speed = glm::dot(cell.neighbors[dir]->v_avg, n_theta_vec[dir]);
+          if (flow_speed < 0.0f) flow_speed = 0.0f;
+        } else {
+          flow_speed = 0.0f;
+        }
 
-        if (cell.rho <= grid.rho_min) {
+        if (!cell.neighbors[dir]) {
           cell.f[dir] = topo_speed;
-        } else if (cell.rho >= grid.rho_max) {
+        } else if (cell.neighbors[dir]->rho <= grid.rho_min) {
+          cell.f[dir] = topo_speed;
+        } else if (cell.neighbors[dir]->rho >= grid.rho_max) {
           cell.f[dir] = flow_speed;
         } else {
           /* Equation 10: linearly interpolate */
-          float speed = topo_speed + (cell.rho - grid.rho_min) /
+          float speed = topo_speed + (cell.neighbors[dir]->rho - grid.rho_min) /
               (grid.rho_max - grid.rho_min) * (flow_speed - topo_speed);
           cell.f[dir] = speed;
         }
 
         /* Equation 4: Cost field */
-        float cost = (grid.alpha * cell.f[dir] + grid.beta + grid.gamma * cell.g) / cell.f[dir];
-        cell.C[dir] = cost;
+        if (cell.neighbors[dir]) {
+          float cost = (grid.alpha * cell.f[dir] + grid.beta + grid.gamma * cell.neighbors[dir]->g) / cell.f[dir];
+          cell.C[dir] = cost;
+        } else {
+          cell.C[dir] = 999999999.0f;
+        }
       }
     }
   }
@@ -144,10 +153,10 @@ void finite_differences_approx(Cell &cell) {
   Direction d_my;
 
   //Check boundary cases
-  if (cell.neighbors[West] == NULL) {
+  if (cell.neighbors[West] == nullptr) {
     phi_mx = cell.neighbors[East]->phi + cell.C[East];
     d_mx = East;
-  } else if (cell.neighbors[East] == NULL) {
+  } else if (cell.neighbors[East] == nullptr) {
     phi_mx = cell.neighbors[East]->phi + cell.C[East];
     d_mx = West;
   } else {
@@ -164,10 +173,10 @@ void finite_differences_approx(Cell &cell) {
     }
   }
   //Check boundary cases
-  if (cell.neighbors[South] == NULL) {
+  if (cell.neighbors[South] == nullptr) {
     phi_my = cell.neighbors[North]->phi + cell.C[North];
     d_my = North;
-  } else if (cell.neighbors[North] == NULL) {
+  } else if (cell.neighbors[North] == nullptr) {
     phi_my = cell.neighbors[South]->phi + cell.C[South];
     d_my = South;
   } else {
@@ -215,9 +224,6 @@ void finite_differences_approx(Cell &cell) {
   }
     cell.phi = phi_m;
 
-
-
-
 }
 
 //Compare function for the heap
@@ -247,8 +253,6 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
     finite_differences_approx(*next);
     std::make_heap(flattened_grid.begin(), flattened_grid.end() - i);
   }
-
-  return;
 }
 
 
@@ -286,28 +290,29 @@ void test_structures() {
   Person dalton(2.6f, 1.3f, 0, 0, -5.0f);
   Cell *daltonCell = dalton.getCell(grid); // 2,1
   daltonCell->g = 1234;
-  daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
+  daltonCell->edges[North]->v = 420.0f;
   Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
-  std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
+  std::cout << daltonAbove->edges[South]->v << std::endl;
   std::cout << daltonAbove->neighbors[South]->g << std::endl;
 
-  float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
-  std::cout << "-9: " << smth << std::endl;
+  float smth = 7 * n_theta_int[South];
+  std::cout << "-7: " << smth << std::endl;
 }
 
 void test_potential_field() {
   Grid grid(4, 3);
 
   Person dalton(2.6f, 1.3f, 0.0f, 0.0f, -5.0f);
+  std::vector<Person> people = {dalton};
+  Group group(glm::vec2(3.2, 2.6), people);
   Cell *daltonCell = dalton.getCell(grid); // 2,1
   daltonCell->g = 1234;
-  daltonCell->edges[North]->v = glm::vec2(0.69, 0.420);
+  daltonCell->edges[North]->v = 420.0f;
   Cell *daltonAbove = grid.getCell(dalton.getGridIndex() + glm::ivec2(0, 1));
-  std::cout << daltonAbove->edges[South]->v[0] << " " << daltonAbove->edges[South]->v[1] << std::endl;
+  std::cout << daltonAbove->edges[South]->v << std::endl;
   std::cout << daltonAbove->neighbors[South]->g << std::endl;
 
-  float smth = glm::dot(glm::vec2(7, 9), n_theta[South]);
-  construct_dynamic_potential_field(grid, glm::ivec2(0,0));
+  construct_dynamic_potential_field(grid, group);
 }
 
 int load_config(json &j, char *config) {
