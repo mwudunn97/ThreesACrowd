@@ -55,7 +55,6 @@ void Grid::clearGridVals() {
       Cell * cell = getCell(i, j);
       cell->phi = std::numeric_limits<float>::infinity();
       for (int dir = East; dir <= South; dir++) {
-        /* dir = direction we're coming FROM. Therefore, n_theta is negated */
         Edge *e = cell->edges[dir];
         e->phi_grad = 0.0f;
         e->v = 0.0f;

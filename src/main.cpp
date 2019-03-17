@@ -227,7 +227,7 @@ void finite_differences_approx(Cell &cell) {
 
 // Compare function for the heap
 bool cmp(const Cell * a, const Cell * b) {
-  return a->phi < b->phi;
+  return a->phi > b->phi;
 }
 
 
@@ -237,7 +237,7 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
      also calculate the velocity field of velocities v */
   glm::ivec2 goal = group.goal;
   std::vector<Cell*> flattened_grid = flatten(grid);
-  int goal_index = goal[1] * grid.getWidth() + goal[0];
+  int goal_index = ((int) goal[1]) * grid.getWidth() + ((int) goal[0]);
   flattened_grid[goal_index]->phi = 0;
   std::make_heap(flattened_grid.begin(), flattened_grid.end(), cmp);
   for (int i = 0; i < flattened_grid.size(); i++) {
@@ -375,6 +375,7 @@ int main(int argc, char* argv[]) {
     density_conversion(grid, groups);
     calculate_unit_cost(grid);
     for (Group &group : groups) {
+      grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
       crowd_advection(grid, group);
     }
