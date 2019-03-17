@@ -224,7 +224,7 @@ void finite_differences_approx(Cell &cell) {
 bool cmp(const Cell * a, const Cell * b) {
   //overloaded < compare, see Cell
   //tbh could have just compared it directly here but wrote this after rip
-  return *a < *b;
+  return (*a).phi < (*b).phi;
 }
 
 
