@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include "Grid.h"
+#include <exception>
 
 Cell::Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS) {
   edges[East] = edgeE;
@@ -135,9 +136,15 @@ int Grid::getHeight() const {
 }
 
 Cell *Grid::getCell(int i, int j) {
+  if (i < 0 || i >= width || j < 0 || j >= height) {
+    throw std::runtime_error("Cell out of bounds");
+  }
   return &grid[j][i];
 }
 
 Cell* Grid::getCell(glm::ivec2 ij) {
+  if (ij[0] < 0 || ij[0] >= width || ij[1] < 0 || ij[1] >= height) {
+    throw std::runtime_error("Cell out of bounds");
+  }
   return &grid[ij[1]][ij[0]];
 }

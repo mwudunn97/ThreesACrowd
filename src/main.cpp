@@ -42,7 +42,7 @@ void density_conversion(Grid &grid, std::vector<Group> &groups) {
       glm::ivec2 gridIndex = person.getGridIndex();
       float dx = person.getPos()[0] - gridIndex[0];
       float dy = person.getPos()[1] - gridIndex[1];
-      Cell *curr_cell = grid.getCell(gridIndex[0], gridIndex[1]);
+      Cell *curr_cell = grid.getCell(gridIndex);
 
       // add density to current cell
       float rho_a = static_cast<float>(pow(std::min(1 - dx, 1 - dy), lambda));
@@ -62,12 +62,14 @@ void density_conversion(Grid &grid, std::vector<Group> &groups) {
           curr_cell->neighbors[North]->neighbors[East]->rho += rho_c;
         }
       }
+
       if (gridIndex[1] - 1 >= 0) {
         // add density to cell above
         float rho_d = static_cast<float>(pow(std::min(1 - dx, dy), lambda));
         curr_cell->neighbors[North]->rho += rho_d;
       }
     }
+
 
     // calculate the average velocity
     for (int i = 0; i < height; i++) {
@@ -302,6 +304,7 @@ int main(int argc, char* argv[]) {
 
   int iterations = j["iterations"];
   for (int i = 0; i < iterations; i++) {
+    std::cout << "Iteration " << i << std::endl;
     density_conversion(grid, groups);
     calculate_unit_cost(grid);
     for (Group &group : groups) {

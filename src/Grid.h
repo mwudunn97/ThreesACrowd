@@ -23,9 +23,9 @@ enum Direction {
 };
 
 struct Edge {
-  glm::vec2 h_grad;
-  glm::vec2 phi_grad;
-  glm::vec2 v;
+  glm::vec2 h_grad {};
+  glm::vec2 phi_grad {};
+  glm::vec2 v {};
 };
 
 /* n sub theta vector representing unit directions in the
@@ -43,15 +43,15 @@ struct Cell {
   Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS);
 
   /* Center of this cell */
-  float g;
-  float phi;
-  float rho;
-  float h;
-  glm::vec2 v_avg;
+  float g = 0;
+  float phi = 0;
+  float rho = 0;
+  float h = 0;
+  glm::vec2 v_avg {};
 
   /* Going INTO this cell: E,N,W,S */
-  glm::vec4 f;
-  glm::vec4 C;
+  glm::vec4 f {};
+  glm::vec4 C {};
 
   std::array<Edge*, 4> edges;
 
