@@ -75,7 +75,9 @@ void density_conversion(Grid &grid, std::vector<Group> &groups) {
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
         Cell *cell = grid.getCell(i, j);
-        cell->v_avg /= cell->rho;
+        if (cell->rho > 0) {
+            cell->v_avg /= cell->rho;
+        }
       }
     }
   }
@@ -214,10 +216,8 @@ void finite_differences_approx(Grid &grid, int i, int j) {
 
 
 void crowd_advection(Grid &grid, Group &group) {
-  // TODO 4.4: update each person's position by interpolating into the vector
-  // field
+  // TODO 4.4: update each person's position by interpolating into the vector field
   std::vector<Person> &people = group.people;
-
   for (auto &person : people) {
     person.setPos(person.getPos() + person.getCell(grid)->v_avg);
   }
@@ -229,12 +229,12 @@ void enforce_minimum_distance(Grid &grid, std::vector<Group> &groups) {
   // apart symmetrically until min. distance is reached. may instead use a
   // neighbor grid instead of the vector of Persons.
 
-  for (Group &group : groups) {
-    // generate spatial map
-    std::vector<Person> &people = group.people;
-    grid.build_neighbor_map(people);
+  // generate spatial map
+  grid.build_neighbor_map(groups);
 
+  for (Group &group : groups) {
     // run pair-wise minimum distance enforcement for each person
+    std::vector<Person> &people = group.people;
     for (auto &person : people) {
       grid.handle_collisions(person);
     }
