@@ -43,15 +43,15 @@ struct Cell {
   Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS);
 
   /* Center of this cell */
-  float g;
-  float phi;
-  float rho;
-  float h;
-  glm::vec2 v_avg;
+  float g = 0;
+  float phi = 0;
+  float rho = 0;
+  float h = 0;
+  glm::vec2 v_avg {};
 
   /* Going INTO this cell: E,N,W,S */
-  glm::vec4 f;
-  glm::vec4 C;
+  glm::vec4 f {};
+  glm::vec4 C {};
 
   std::array<Edge*, 4> edges;
 
@@ -101,8 +101,9 @@ public:
   float f_max;   // eqn. 8
   float s_min;   // eqn. 8
   float s_max;   // eqn. 8
+  double lambda; // section 4.1
 
-  void build_neighbor_map(std::vector<Person> &people);
+  void build_neighbor_map(std::vector<Group> &groups);
   void handle_collisions(Person &person);
 
 private:

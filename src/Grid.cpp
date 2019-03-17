@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include "Grid.h"
+#include <exception>
 
 Cell::Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS) {
   edges[East] = edgeE;
@@ -81,7 +82,7 @@ float Grid::hash_position(glm::vec2 pos) {
 }
 
 // construct a spatial map of neighbors for all people
-void Grid::build_neighbor_map(std::vector<Person> &people) {
+void Grid::build_neighbor_map(std::vector<Group> &group) {
   // clear entries
   for (const auto &entry : map) {
     delete(entry.second);
@@ -89,12 +90,15 @@ void Grid::build_neighbor_map(std::vector<Person> &people) {
   map.clear();
 
   // hash each person into the map
-  for (auto &person : people) {
-    float hash = hash_position(person.getPos());
-    if (map[hash] == NULL) {
-      map[hash] = new std::vector<Person *>();
-    }
-    map[hash]->push_back(&person);
+  for (auto &group : group) {
+      std::vector<Person> &people = group.people;
+      for (auto &person : people) {
+          float hash = hash_position(person.getPos());
+          if (map[hash] == NULL) {
+              map[hash] = new std::vector<Person *>();
+          }
+          map[hash]->push_back(&person);
+      }
   }
 }
 
@@ -140,6 +144,7 @@ Grid::Grid(json &j) {
   rho_max = j["rho_max"];
   f_min =   j["f_min"];
   f_max =   j["f_max"];
+  lambda =  j["lambda"];
 
   fill();
 }
@@ -153,9 +158,15 @@ int Grid::getHeight() const {
 }
 
 Cell *Grid::getCell(int i, int j) {
+  if (i < 0 || i >= width || j < 0 || j >= height) {
+    throw std::runtime_error("Cell out of bounds");
+  }
   return &grid[j][i];
 }
 
 Cell* Grid::getCell(glm::ivec2 ij) {
+  if (ij[0] < 0 || ij[0] >= width || ij[1] < 0 || ij[1] >= height) {
+    throw std::runtime_error("Cell out of bounds");
+  }
   return &grid[ij[1]][ij[0]];
 }

@@ -16,63 +16,70 @@
 
 using json = nlohmann::json;
 
-void density_conversion(Grid &grid, Group &group, double lambda) {
+void density_conversion(Grid &grid, std::vector<Group> &groups) {
   // TODO 4.1: convert positions of Persons into densities and
   // insert into Grid. Also calculate average velocities of each cell.
 
-  std::vector<Person> &people = group.people;
+  double lambda = grid.lambda;
+  for (auto &group : groups) {
+    std::vector<Person> &people = group.people;
 
-  int width = grid.getWidth();
-  int height = grid.getHeight();
+    int width = grid.getWidth();
+    int height = grid.getHeight();
 
-  // reset all rho and v_avg values for the grid
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
-      Cell *cell = grid.getCell(i, j);
-      cell->rho = 0.0f;
-      cell->v_avg[0] = 0.0f;
-      cell->v_avg[1] = 0.0f;
-    }
-  }
-
-
-  for (auto &person : people) {
-    // TODO: will this find the correct, closest cell center?
-    glm::ivec2 gridIndex = person.getGridIndex();
-    float dx = person.getPos()[0] - gridIndex[0];
-    float dy = person.getPos()[1] - gridIndex[1];
-    Cell *curr_cell = grid.getCell(gridIndex[0], gridIndex[1]);
-
-    // add density to current cell
-    float rho_a = static_cast<float>(pow(std::min(1-dx, 1-dy), lambda));
-    curr_cell->rho += rho_a;
-    // accumulate weighted density for avg velocity calculation
-    curr_cell->v_avg += person.getVelocity() * rho_a;
-
-    // TODO: think of a cleaner way to write this
-    if (gridIndex[0] + 1 < width) {
-      // add density to cell to the right
-      float rho_b = static_cast<float>(pow(std::min(dx, 1-dy), lambda));
-      curr_cell->neighbors[East]->rho += rho_b;
-
-      if (gridIndex[1] - 1 >= 0) {
-        // add density to cell above and to the right
-        float rho_c = static_cast<float>(pow(std::min(dx, dy), lambda));
-        curr_cell->neighbors[North]->neighbors[East]->rho += rho_c;
+    // reset all rho and v_avg values for the grid
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        Cell *cell = grid.getCell(i, j);
+        cell->rho = 0.0f;
+        cell->v_avg[0] = 0.0f;
+        cell->v_avg[1] = 0.0f;
       }
     }
-    if (gridIndex[1] - 1 >= 0) {
-      // add density to cell above
-      float rho_d = static_cast<float>(pow(std::min(1-dx, dy), lambda));
-        curr_cell->neighbors[North]->rho += rho_d;
-    }
-  }
 
-  // calculate the average velocity
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
-      Cell *cell = grid.getCell(i, j);
-      cell->v_avg /= cell->rho;
+
+    for (auto &person : people) {
+      // TODO: will this find the correct, closest cell center?
+      glm::ivec2 gridIndex = person.getGridIndex();
+      float dx = person.getPos()[0] - gridIndex[0];
+      float dy = person.getPos()[1] - gridIndex[1];
+      Cell *curr_cell = grid.getCell(gridIndex);
+
+      // add density to current cell
+      float rho_a = static_cast<float>(pow(std::min(1 - dx, 1 - dy), lambda));
+      curr_cell->rho += rho_a;
+      // accumulate weighted density for avg velocity calculation
+      curr_cell->v_avg += person.getVelocity() * rho_a;
+
+      // TODO: think of a cleaner way to write this
+      if (gridIndex[0] + 1 < width) {
+        // add density to cell to the right
+        float rho_b = static_cast<float>(pow(std::min(dx, 1 - dy), lambda));
+        curr_cell->neighbors[East]->rho += rho_b;
+
+        if (gridIndex[1] - 1 >= 0) {
+          // add density to cell above and to the right
+          float rho_c = static_cast<float>(pow(std::min(dx, dy), lambda));
+          curr_cell->neighbors[North]->neighbors[East]->rho += rho_c;
+        }
+      }
+
+      if (gridIndex[1] - 1 >= 0) {
+        // add density to cell above
+        float rho_d = static_cast<float>(pow(std::min(1 - dx, dy), lambda));
+        curr_cell->neighbors[North]->rho += rho_d;
+      }
+    }
+
+
+    // calculate the average velocity
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        Cell *cell = grid.getCell(i, j);
+        if (cell->rho > 0) {
+            cell->v_avg /= cell->rho;
+        }
+      }
     }
   }
 }
@@ -221,10 +228,11 @@ bool cmp(const Cell * a, const Cell * b) {
 }
 
 
-void construct_dynamic_potential_field(Grid &grid, glm::ivec2 goal) {
+void construct_dynamic_potential_field(Grid &grid, Group &group) {
   // TODO 4.3: use fast-marching algorithm to calculate the potentials
   // and potential gradients (phi and del phi)
   // also calculate the velocity field of velocities v
+  glm::ivec2 goal = group.goal;
   std::vector<Cell*> flattened_grid = flatten(grid);
   int goal_index = goal[1] * grid.getWidth() + goal[0];
   flattened_grid[goal_index]->phi = 0;
@@ -245,28 +253,28 @@ void construct_dynamic_potential_field(Grid &grid, glm::ivec2 goal) {
 
 
 void crowd_advection(Grid &grid, Group &group) {
-  // TODO 4.4: update each person's position by interpolating into the vector
-  // field
+  // TODO 4.4: update each person's position by interpolating into the vector field
   std::vector<Person> &people = group.people;
-
   for (auto &person : people) {
     person.setPos(person.getPos() + person.getCell(grid)->v_avg);
   }
 }
 
 
-void enforce_minimum_distance(Grid &grid, Group &group) {
+void enforce_minimum_distance(Grid &grid, std::vector<Group> &groups) {
   // TODO 4.5: iterate over all pairs in a threshold distance and push people
   // apart symmetrically until min. distance is reached. may instead use a
   // neighbor grid instead of the vector of Persons.
 
   // generate spatial map
-  std::vector<Person> &people = group.people;
-  grid.build_neighbor_map(people);
+  grid.build_neighbor_map(groups);
 
-  // run pair-wise minimum distance enforcement for each person
-  for (auto &person : people) {
-    grid.handle_collisions(person);
+  for (Group &group : groups) {
+    // run pair-wise minimum distance enforcement for each person
+    std::vector<Person> &people = group.people;
+    for (auto &person : people) {
+      grid.handle_collisions(person);
+    }
   }
 }
 
@@ -335,19 +343,30 @@ int main(int argc, char* argv[]) {
     return -1;
   }
   json j;
-//  if (load_config(j, argv[1])) {
-//    return -1;
-//  }
+
+  if (load_config(j, argv[1])) {
+    std::cerr << "Error loading config file" << std::endl;
+    return -1;
+  }
 
   Grid grid(j);
   std::vector<Group> groups;
   if (load_groups(j, &groups)) {
+    std::cerr << "Error loading groups from config file" << std::endl;
     return -1;
   }
 
   int iterations = j["iterations"];
   for (int i = 0; i < iterations; i++) {
-
+    std::cout << "Iteration " << i << std::endl;
+    density_conversion(grid, groups);
+    calculate_unit_cost(grid);
+    for (Group &group : groups) {
+      construct_dynamic_potential_field(grid, group);
+      crowd_advection(grid, group);
+    }
+    enforce_minimum_distance(grid, groups);
   }
+
   return 0;
 }
