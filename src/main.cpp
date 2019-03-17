@@ -11,7 +11,6 @@
 #include "Grid.h"
 #include "Person.h"
 #include <json.hpp>
-#include <GL/glut.h>
 #include <algorithm>
 
 using json = nlohmann::json;
@@ -230,7 +229,7 @@ void finite_differences_approx(Cell &cell) {
 bool cmp(const Cell * a, const Cell * b) {
   //overloaded < compare, see Cell
   //tbh could have just compared it directly here but wrote this after rip
-  return (*a).phi < (*b).phi;
+  return a->phi < b->phi;
 }
 
 
