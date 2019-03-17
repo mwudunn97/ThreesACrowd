@@ -17,8 +17,8 @@
 using json = nlohmann::json;
 
 void density_conversion(Grid &grid, std::vector<Group> &groups) {
-  // TODO 4.1: convert positions of Persons into densities and
-  // insert into Grid. Also calculate average velocities of each cell.
+  /* convert positions of Persons into densities and
+     insert into Grid. Also calculate average velocities of each cell. */
 
   double lambda = grid.lambda;
   for (auto &group : groups) {
@@ -87,8 +87,8 @@ void density_conversion(Grid &grid, std::vector<Group> &groups) {
 
 
 void calculate_unit_cost(Grid &grid) {
-  // TODO 4.2: iterate over each of 4 directions of each cell
-  // and calculate f_{M->i} and {C_M->i} where i is in {N, E, S, W}
+  /* iterate over each of 4 directions of each cell
+     and calculate f_{M->i} and {C_M->i} where i is in {N, E, S, W} */
 
   for (auto &row : grid.grid) {
     for (auto &cell : row) {
@@ -226,18 +226,16 @@ void finite_differences_approx(Cell &cell) {
 
 }
 
-//Compare function for the heap
+// Compare function for the heap
 bool cmp(const Cell * a, const Cell * b) {
-  //overloaded < compare, see Cell
-  //tbh could have just compared it directly here but wrote this after rip
   return a->phi < b->phi;
 }
 
 
 void construct_dynamic_potential_field(Grid &grid, Group &group) {
-  // TODO 4.3: use fast-marching algorithm to calculate the potentials
-  // and potential gradients (phi and del phi)
-  // also calculate the velocity field of velocities v
+  /* use fast-marching algorithm to calculate the potentials
+     and potential gradients (phi and del phi)
+     also calculate the velocity field of velocities v */
   glm::ivec2 goal = group.goal;
   std::vector<Cell*> flattened_grid = flatten(grid);
   int goal_index = goal[1] * grid.getWidth() + goal[0];
@@ -257,18 +255,29 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
 
 
 void crowd_advection(Grid &grid, Group &group) {
-  // TODO 4.4: update each person's position by interpolating into the vector field
+  /* update each person's position by interpolating into the vector field */
+
+  /* Put velocity in each Cell from its edges */
+  for (auto &row : grid.grid) {
+    for (auto &cell : row) {
+      cell.v_avg = glm::vec2(cell.edges[East]->v - cell.edges[West]->v,
+                             cell.edges[North]->v - cell.edges[South]->v);
+    }
+  }
+
+  /* Set people positions */
   std::vector<Person> &people = group.people;
   for (auto &person : people) {
+    // TODO blinearly interpolate
     person.setPos(person.getPos() + person.getCell(grid)->v_avg);
   }
 }
 
 
 void enforce_minimum_distance(Grid &grid, std::vector<Group> &groups) {
-  // TODO 4.5: iterate over all pairs in a threshold distance and push people
-  // apart symmetrically until min. distance is reached. may instead use a
-  // neighbor grid instead of the vector of Persons.
+  /* iterate over all pairs in a threshold distance and push people
+     apart symmetrically until min. distance is reached. may instead use a
+     neighbor grid instead of the vector of Persons. */
 
   // generate spatial map
   grid.build_neighbor_map(groups);
