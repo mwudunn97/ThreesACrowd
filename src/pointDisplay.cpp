@@ -7,24 +7,7 @@
 ////
 
 
-#include <iostream>
-#include <stdlib.h>
-#include <math.h>
-#ifdef __MINGW32__
-  #include <GL/glut.h>
-#else
-  #include <GLUT/glut.h>
-#endif
-#include <iterator>
-#include <fstream>
-
-#include <glm/vec3.hpp> // glm::vec3
-#include <vector>
-#include <glm/vec4.hpp> // glm::vec4
-#include <glm/mat4x4.hpp> // glm::mat4
-#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
-using namespace glm;
-using namespace std;
+#include "pointDisplay.h"
 
 
 const int num_circle_segments = 100;
@@ -46,9 +29,10 @@ void display_point(glm::vec2 point) {
 
 }
 
-int write_points(vector<vector<vec2>> points) {
+//Write points to a file, so it can be loaded into unity
+int write_points(vector<vector<vec2>> points, string filename) {
   ofstream pointFile;
-  pointFile.open ("locations.txt");
+  pointFile.open (filename);
   pointFile << to_string(points[0].size());
   for (vector<vec2> trajectories: points) {
     for (vec2 point: trajectories) {
@@ -59,6 +43,7 @@ int write_points(vector<vector<vec2>> points) {
   return 0;
 }
 
+//Takes a set of input points and draws them to the screen
 void draw_points(std::vector<vec2> points) {
   GLfloat point_color[3] = {0.0,0.0,0.0};
   glEnable( GL_POINT_SMOOTH );
@@ -74,6 +59,7 @@ void draw_points(std::vector<vec2> points) {
   glFlush();
 }
 
+//Test example
 vector<vector<vec2>> generate_examples() {
   vector<vector<vec2>> traj;
   vector<vec2> ex_vec;
@@ -99,11 +85,24 @@ vector<vector<vec2>> generate_examples() {
 
   return traj;
 }
+
+//GLUT needs a global vec
+vector<vector<vec2>> point_traj;
+
+void set_points(vector<vector<vec2>> points) {
+  point_traj = points;
+}
+
+vector<vector<vec2>> get_points() {
+  return point_traj;
+}
+
+//GLUT display function
 void display()
 {
 
-  vector<vector<vec2>> example_traj = generate_examples();
-  vector<vec2> vec = example_traj[0];
+  vector<vector<vec2>> points = get_points();
+  vector<vec2> vec = points[0];
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -115,6 +114,7 @@ void display()
 
 }
 
+//Init matrices
 void myinit() {
   glEnable(GL_DEPTH_TEST);
   glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -127,11 +127,18 @@ void myinit() {
   glMatrixMode(GL_MODELVIEW);
 }
 
+void display_points(vector<vector<vec2>> points) {
+  set_points(points);
+  glutDisplayFunc(display);
+
+  myinit();
+  glutMainLoop();
+
+}
+
+//Call this function to display points
 int pointDisplay(int argc, char** argv)
 {
-
-  vector<vector<vec2>> exam_points = generate_examples();
-  write_points(exam_points);
 
   glutInit(&argc, argv);
 
@@ -140,10 +147,6 @@ int pointDisplay(int argc, char** argv)
   glutInitWindowSize(800, 800);
   glutInitWindowPosition(0, 0);
   glutCreateWindow("GLUT Program");
-
-  glutDisplayFunc(display);
-
-  myinit();
-  glutMainLoop();
   return 0;
+
 }

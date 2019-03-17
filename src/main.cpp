@@ -12,6 +12,7 @@
 #include "Person.h"
 #include <json.hpp>
 #include <algorithm>
+#include <pointDisplay.h>
 
 using json = nlohmann::json;
 
@@ -221,7 +222,10 @@ void finite_differences_approx(Cell &cell) {
     cell.edges[d_my]->phi_grad = phi_m - phi_my;
     cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
   }
-    cell.phi = phi_m;
+    if (cell.phi > phi_m) {
+      cell.phi = phi_m;
+    }
+
 
 }
 
@@ -242,7 +246,7 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
   std::make_heap(flattened_grid.begin(), flattened_grid.end(), cmp);
   for (int i = 0; i < flattened_grid.size(); i++) {
     Cell* next = flattened_grid.front();
-    std::pop_heap (flattened_grid.begin(),flattened_grid.end()); flattened_grid.pop_back();
+    std::pop_heap (flattened_grid.begin(),flattened_grid.end());
 
     for (Cell *c : next->neighbors) {
       if (c != nullptr) finite_differences_approx(*c);
@@ -351,6 +355,15 @@ int main(int argc, char* argv[]) {
   // test_structures();
   test_potential_field();
 
+  /* Init point display */
+  pointDisplay(argc, argv);
+
+  /* Display points function, replace with actual point vector */
+  //display_points(points);
+
+  /* Write points to a file */
+  //write_points(points, filename);
+
   if (argc < 2) {
     std::cerr << "Please specify a configuration file" << std::endl;
     return -1;
@@ -381,6 +394,7 @@ int main(int argc, char* argv[]) {
     }
     enforce_minimum_distance(grid, groups);
   }
+
 
   return 0;
 }
