@@ -228,7 +228,7 @@ void finite_differences_approx(Cell &cell) {
 
 // Compare function for the heap
 bool cmp(const Cell * a, const Cell * b) {
-  return a->phi < b->phi;
+  return a->phi > b->phi;
 }
 
 
