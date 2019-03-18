@@ -157,7 +157,7 @@ void finite_differences_approx(Cell &cell) {
     phi_mx = cell.neighbors[East]->phi + cell.C[East];
     d_mx = East;
   } else if (cell.neighbors[East] == nullptr) {
-    phi_mx = cell.neighbors[East]->phi + cell.C[East];
+    phi_mx = cell.neighbors[West]->phi + cell.C[East];
     d_mx = West;
   } else {
     //Otherwise, choose minimum phi + index between west/east directions
