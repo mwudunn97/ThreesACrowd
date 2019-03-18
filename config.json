@@ -8,7 +8,7 @@
 "lambda" : 0.1,
 
 "rho_min" : 0.1,
-"rho_max" : 0.9,
+"rho_max" : 2.9,
 "f_min"   : 0.0,
 "f_max"   : 1.0,
 "s_min"   : -0.5,
