@@ -137,8 +137,8 @@ void calculate_unit_cost(Grid &grid) {
 
 std::vector<Cell*> flatten(Grid &grid) {
   std::vector<Cell*> result;
-  for (int j = 0; j < grid.width; j++) {
-    for (int i = 0; i < grid.height; i++) {
+  for (int j = 0; j < grid.height; j++) {
+    for (int i = 0; i < grid.width; i++) {
       result.push_back(grid.getCell(i, j));
     }
   }
