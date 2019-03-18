@@ -126,7 +126,7 @@ void calculate_unit_cost(Grid &grid) {
         /* Equation 4: Cost field */
         if (cell.neighbors[dir]) {
           float cost = (grid.alpha * cell.f[dir] + grid.beta + grid.gamma * cell.neighbors[dir]->g) / cell.f[dir];
-          cell.C[dir] = cost;
+          cell.C[dir] = cell.f[dir] > 0 ? cost : std::numeric_limits<float>::infinity();
         } else {
           cell.C[dir] = std::numeric_limits<float>::infinity();
         }
@@ -272,6 +272,7 @@ void crowd_advection(Grid &grid, Group &group) {
   std::vector<Person> &people = group.people;
   for (auto &person : people) {
     // TODO blinearly interpolate
+    person.setVelocity(person.getCell(grid)->v_avg);
     person.setPos(person.getPos() + person.getCell(grid)->v_avg);
   }
 }
