@@ -24,9 +24,9 @@ enum Direction {
 
 struct Edge {
   /* Positive is Northward and Eastward */
-  float h_grad;
-  float phi_grad;
-  float v;
+  float h_grad = 0;
+  float phi_grad = 0;
+  float v = 0;
 };
 
 /* n sub theta vector representing unit directions in the
