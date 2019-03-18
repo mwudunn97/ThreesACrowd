@@ -25,9 +25,9 @@ void Grid::fill() {
   int edgeRowLen = 2 * width + 1;
 
   /* Create cells and connect to existing edges */
-  for (int j = 0; j < width; j++) {
+  for (int j = 0; j < height; j++) {
     grid.emplace_back();
-    for (int i = 0; i < height; i++) {
+    for (int i = 0; i < width; i++) {
       int edgeS_idx = j * edgeRowLen + i;
       grid[j].emplace_back(
           &edges[edgeS_idx + width + 1],
@@ -39,12 +39,12 @@ void Grid::fill() {
   }
 
   /* Attach neighbors */
-  for (int j = 0; j < width; j++) {
-    for (int i = 0; i < height; i++) {
-      if (i > 0) grid[j][i].neighbors[West] = &grid[j][i-1];
-      if (i < width - 1) grid[j][i].neighbors[East] = &grid[j][i+1];
-      if (j < height - 1) grid[j][i].neighbors[North] = &grid[j+1][i];
-      if (j > 0) grid[j][i].neighbors[South] = &grid[j-1][i];
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      grid[j][i].neighbors[West] = i > 0 ? &grid[j][i-1] : nullptr;
+      grid[j][i].neighbors[East] = i < width - 1 ?  &grid[j][i+1] : nullptr;
+      grid[j][i].neighbors[North] = j < height - 1 ? &grid[j+1][i] : nullptr;
+      grid[j][i].neighbors[South] = j > 0 ?  &grid[j-1][i] : nullptr;
     }
   }
 }
