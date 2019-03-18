@@ -128,7 +128,7 @@ void calculate_unit_cost(Grid &grid) {
           float cost = (grid.alpha * cell.f[dir] + grid.beta + grid.gamma * cell.neighbors[dir]->g) / cell.f[dir];
           cell.C[dir] = cost;
         } else {
-          cell.C[dir] = 9999999.0f;
+          cell.C[dir] = std::numeric_limits<float>::infinity();
         }
       }
     }
@@ -353,7 +353,7 @@ int load_groups(json &j, std::vector<Group> *groups) {
 int main(int argc, char* argv[]) {
   std::cout << "Three's A Crowd Simulator" << std::endl;
   // test_structures();
-  test_potential_field();
+  // test_potential_field();
 
   /* Init point display */
   pointDisplay(argc, argv);
