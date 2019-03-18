@@ -7,7 +7,8 @@
 #include <exception>
 #include <iostream>
 
-Cell::Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS) {
+Cell::Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS, int i, int j)
+ : i(i), j(j) {
   edges[East] = edgeE;
   edges[North] = edgeN;
   edges[West] = edgeW;
@@ -33,7 +34,8 @@ void Grid::fill() {
           &edges[edgeS_idx + width + 1],
           &edges[edgeS_idx + edgeRowLen],
           &edges[edgeS_idx + width],
-          &edges[edgeS_idx]);
+          &edges[edgeS_idx],
+          i, j);
     }
 
   }

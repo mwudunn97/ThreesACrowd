@@ -38,7 +38,11 @@ const std::array<glm::vec2, 4> n_theta_vec {{
 }};
 
 struct Cell {
-  Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS);
+  Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS, int i, int j);
+
+  /* Location (for debugging) */
+  int i;
+  int j;
 
   /* Center of this cell */
   float g = 0;
