@@ -296,6 +296,23 @@ void normalize_gradients(Grid &grid) {
 }
 
 
+
+glm::vec2 interpolateTwo(float x, float x1, float x2, glm::vec2 v1, glm::vec2 v2) {
+  //  return v1 * (cell_index + 1.5f - personLoc) + v2 * (personLoc - cell_index + 0.5f);
+  return v1 * (x2 - x) + v2 * (x - x1); // assume x2-x1 = 1
+}
+
+glm::vec2 interpolateFour(float x, float y, float x1, float y1, float x2, float y2,
+                          glm::vec2 v11, glm::vec2 v12, glm::vec2 v21, glm::vec2 v22) {
+  // assume x2-x1 = 1 and y2-y1 = 1
+  float x_weight1 = x2 - x;
+  float x_weight2 = x - x1;
+  glm::vec2 interp1 = v11 * x_weight1 + v21 * x_weight2;
+  glm::vec2 interp2 = v12 * x_weight1 + v22 * x_weight2;
+  glm::vec2 interp_final = interp1 * (y2 - y) + interp2 * (y - y1);
+  return interp_final;
+}
+
 void crowd_advection(Grid &grid, Group &group) {
   /* update each person's position by interpolating into the vector field */
 
@@ -308,13 +325,64 @@ void crowd_advection(Grid &grid, Group &group) {
   }
 
   /* Set people positions */
+  glm::vec2 velocity;
+  glm::vec2 cellAvel, cellBvel, cellCvel, cellDvel;
   std::vector<Person> &people = group.people;
   for (auto &person : people) {
-    // TODO blinearly interpolate
-    person.setVelocity(person.getCell(grid)->v_avg);
-    person.setPos(person.getPos() + person.getCell(grid)->v_avg);
+    // bilinearly interpolate velocity for this person relative to center of cells
+    cellAvel = cellBvel = cellCvel = cellDvel = glm::vec2(0.0f);
+    Cell *cellA = person.getCell(grid);
+    Cell *cellB = cellA->neighbors[East];
+    Cell *cellC = cellB ? cellA->neighbors[East]->neighbors[North] : nullptr;
+    Cell *cellD = cellA->neighbors[North];
+
+    if (cellA) {
+      cellAvel = cellA->v_avg;
+    }
+    if (cellB) {
+      cellBvel = cellB->v_avg;
+    }
+    if (cellC) {
+      cellCvel = cellC->v_avg;
+    }
+    if (cellD) {
+      cellDvel = cellD->v_avg;
+    }
+
+    if (!cellA && !cellD) {
+      // interpolate y-axis of B,C
+      velocity = interpolateTwo(person.getPos().y, cellB->j + 0.5f, cellC->j + 0.5f, cellBvel, cellCvel);
+      velocity.x = std::max(velocity.x, 0.0f);
+    } else if (!cellC && !cellB) {
+      // interpolate y-axis of A,D
+      velocity = interpolateTwo(person.getPos().y, cellA->j + 0.5f, cellD->j + 0.5f, cellAvel, cellDvel);
+      velocity.x = std::min(velocity.x, 0.0f);
+    } else if (!cellA && !cellB) {
+      // interpolate x-axis of D,C
+      velocity = interpolateTwo(person.getPos().y, cellD->i + 0.5f, cellC->i + 0.5f, cellDvel, cellCvel);
+      velocity.y = std::max(velocity.y, 0.0f);
+    } else if (!cellC && !cellD) {
+      // interpolate x-axis of A,B
+      velocity = interpolateTwo(person.getPos().y, cellA->i + 0.5f, cellB->i + 0.5f, cellAvel, cellBvel);
+      velocity.y = std::min(velocity.y, 0.0f);
+    } else {
+      // interpolate between all 4 cells
+      velocity = interpolateFour(person.getPos().x, person.getPos().y,
+                                 cellA->i + 0.5f, cellA->j + 0.5f,
+                                 cellC->i + 0.5f, cellC->j + 0.5f,
+                                 cellAvel, cellBvel, cellDvel, cellCvel);
+    }
+
+    // update person's velocity and position
+    person.setVelocity(velocity);
+    person.setPos(person.getPos() + velocity);
+
+//    // set velocity with current cell's average velocity only
+//    person.setVelocity(person.getCell(grid)->v_avg);
+//    person.setPos(person.getPos() + person.getCell(grid)->v_avg);
   }
 }
+
 
 
 void enforce_minimum_distance(Grid &grid, std::vector<Group> &groups) {
