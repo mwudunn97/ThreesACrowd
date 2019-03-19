@@ -183,7 +183,7 @@ Cell* Grid::getCell(glm::ivec2 ij) {
 void Grid::print_v_avg() {
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
     for (auto &cell : *row) {
-      std::cout << std::setw(4) << cell.v_avg[0] << " " << std::setw(4) << cell.v_avg[1] << " ||";
+      std::cout << std::setw(6) << cell.v_avg[0] << " " << std::setw(6) << cell.v_avg[1] << " ||";
     }
     std::cout << std::endl;
   }
@@ -231,17 +231,17 @@ void Grid::print_phi() {
 void Grid::print_phi_grad() {
   std::cout << "   ";
   for (auto &cell : grid[height - 1]) {
-    std::cout << std::setw(6) <<cell.edges[North]->phi_grad << " ";
+    std::cout << std::setw(7) << cell.edges[North]->phi_grad << " ";
   }
   std::cout << std::endl;
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
-    std::cout << std::setw(6) <<  (*row)[0].edges[West]->phi_grad << " ";
+    std::cout << std::setw(7) <<  (*row)[0].edges[West]->phi_grad << " ";
     for (auto &cell : *row) {
-      std::cout << std::setw(6) << cell.edges[East]->phi_grad << " ";
+      std::cout << std::setw(7) << cell.edges[East]->phi_grad << " ";
     }
     std::cout << std::endl << "   ";
     for (auto &cell : *row) {
-      std::cout << std::setw(6) << cell.edges[South]->phi_grad << " ";
+      std::cout << std::setw(7) << cell.edges[South]->phi_grad << " ";
     }
     std::cout << std::endl;
   }
@@ -251,17 +251,17 @@ void Grid::print_phi_grad() {
 void Grid::print_v() {
   std::cout << "   ";
   for (auto &cell : grid[height - 1]) {
-    std::cout << cell.edges[North]->v<< " ";
+    std::cout << std::setw(7) << cell.edges[North]->v<< " ";
   }
   std::cout << std::endl;
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
-    std::cout << (*row)[0].edges[West]->v << " ";
+    std::cout << std::setw(7) <<(*row)[0].edges[West]->v << " ";
     for (auto &cell : *row) {
-      std::cout << cell.edges[East]->v << " ";
+      std::cout << std::setw(7) << cell.edges[East]->v << " ";
     }
     std::cout << std::endl << "   ";
     for (auto &cell : *row) {
-      std::cout << cell.edges[South]->v << " ";
+      std::cout << std::setw(7) << cell.edges[South]->v << " ";
     }
     std::cout << std::endl;
   }

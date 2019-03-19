@@ -150,46 +150,56 @@ std::vector<Cell*> flatten(Grid &grid) {
 void finite_differences_approx(Cell &cell) {
   float phi_mx;
   float phi_my;
+  float mx;
+  float my;
   Direction d_mx;
   Direction d_my;
 
   //Check boundary cases
   if (cell.neighbors[West] == nullptr) {
-    phi_mx = cell.neighbors[East]->phi + cell.C[East];
+    phi_mx = cell.neighbors[East]->phi;
+    mx = phi_mx + cell.C[East];
     d_mx = East;
   } else if (cell.neighbors[East] == nullptr) {
-    phi_mx = cell.neighbors[West]->phi + cell.C[West];
+    phi_mx = cell.neighbors[West]->phi;
+    mx = phi_mx + cell.C[West];
     d_mx = West;
   } else {
     //Otherwise, choose minimum phi + index between west/east directions
-    float phi_wx = cell.neighbors[West]->phi + cell.C[West];
-    float phi_ex = cell.neighbors[East]->phi + cell.C[East];
+    float wx = cell.neighbors[West]->phi + cell.C[West];
+    float ex = cell.neighbors[East]->phi + cell.C[East];
 
-    if (phi_wx < phi_ex) {
-      phi_mx = phi_wx;
+    if (wx < ex) {
+      phi_mx = cell.neighbors[West]->phi;
+      mx = phi_mx + cell.C[West];
       d_mx = West;
     } else {
-      phi_mx = phi_ex;
+      phi_mx = cell.neighbors[East]->phi;
+      mx = phi_mx + cell.C[East];
       d_mx = East;
     }
   }
   //Check boundary cases
   if (cell.neighbors[South] == nullptr) {
-    phi_my = cell.neighbors[North]->phi + cell.C[North];
+    phi_my = cell.neighbors[North]->phi;
+    my = phi_my + cell.C[North];
     d_my = North;
   } else if (cell.neighbors[North] == nullptr) {
-    phi_my = cell.neighbors[South]->phi + cell.C[South];
+    phi_my = cell.neighbors[South]->phi;
+    my = phi_my + cell.C[South];
     d_my = South;
   } else {
     //Otherwise, choose minimum phi + index between north/south directions
-    float phi_ny = cell.neighbors[North]->phi + cell.C[North];
-    float phi_sy = cell.neighbors[South]->phi + cell.C[South];
+    float ny = cell.neighbors[North]->phi + cell.C[North];
+    float sy = cell.neighbors[South]->phi + cell.C[South];
 
-    if (phi_sy < phi_ny) {
-      phi_my = phi_sy;
+    if (sy < ny) {
+      phi_my = cell.neighbors[South]->phi;
+      my = phi_my + cell.C[South];
       d_my = South;
     } else {
-      phi_my = phi_ny;
+      phi_my = cell.neighbors[North]->phi;
+      my = phi_my + cell.C[North];
       d_my = North;
     }
   }
@@ -204,27 +214,29 @@ void finite_differences_approx(Cell &cell) {
   if (std::isinf(phi_mx)) {
     float det = c_mx;
     phi_m = phi_my + std::sqrt(det);
-    cell.edges[d_my]->phi_grad = phi_m - phi_my;
-    cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    cell.edges[d_my]->phi_grad = phi_my - phi_m;
+    cell.edges[d_my]->v = cell.edges[d_my]->phi_grad *
+        (float) -cell.neighbors[d_my]->f[(d_my + 2) % 4];
   } else if (std::isinf(phi_my)) {
     float det = c_my;
     phi_m = phi_mx + std::sqrt(det);
-    cell.edges[d_mx]->phi_grad = phi_m - phi_mx;
-    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    cell.edges[d_mx]->phi_grad = phi_mx - phi_m;
+    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad *
+        (float) -cell.neighbors[d_my]->f[(d_mx + 2) % 4];
   } else {
     float a = (c_mx + c_my);
     float b = -2.0f * (c_my * phi_mx + c_mx * phi_my) ;
     phi_m = (-1.0f * b) / (2.0f * a);
 
-    cell.edges[d_mx]->phi_grad = phi_m - phi_mx;
-    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
-    cell.edges[d_my]->phi_grad = phi_m - phi_my;
-    cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    cell.edges[d_mx]->phi_grad = phi_mx - phi_m;
+    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad *
+        (float) -cell.neighbors[d_mx]->f[(d_mx + 2) % 4];
+    cell.edges[d_my]->phi_grad = phi_my - phi_m;
+    cell.edges[d_my]->v = cell.edges[d_my]->phi_grad *
+        (float) -cell.neighbors[d_mx]->f[(d_my + 2) % 4];
   }
 
-  if (cell.phi_tmp > phi_m) {
-    cell.phi_tmp = phi_m;
-  }
+  cell.phi_tmp = phi_m;
 }
 
 // Compare function for the heap
@@ -303,8 +315,6 @@ void normalize_gradients(Grid &grid) {
   }
 }
 
-
-
 glm::vec2 interpolateTwo(float x, float x1, float x2, glm::vec2 v1, glm::vec2 v2) {
   //  return v1 * (cell_index + 1.5f - personLoc) + v2 * (personLoc - cell_index + 0.5f);
   return v1 * (x2 - x) + v2 * (x - x1); // assume x2-x1 = 1
@@ -327,8 +337,8 @@ void crowd_advection(Grid &grid, Group &group) {
   /* Put velocity in each Cell from its edges */
   for (auto &row : grid.grid) {
     for (auto &cell : row) {
-      cell.v_avg = glm::vec2(cell.edges[East]->v - cell.edges[West]->v,
-                             cell.edges[North]->v - cell.edges[South]->v);
+      cell.v_avg = glm::vec2((cell.edges[East]->v + cell.edges[West]->v) / 2.0f,
+                             (cell.edges[North]->v + cell.edges[South]->v) / 2.0f);
     }
   }
 
@@ -507,15 +517,19 @@ int main(int argc, char* argv[]) {
     for (Group &group : groups) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
-      grid.print_C();
-      grid.print_phi();
-      grid.print_phi_grad();
+      //grid.print_C();
+      //grid.print_phi();
+      //grid.print_phi_grad();
+      //grid.print_v();
+      //grid.print_f();
       crowd_advection(grid, group);
+      //grid.print_v_avg();
       for (Person &p : group.people) {
         std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;
       }
     }
     enforce_minimum_distance(grid, groups);
+    //getchar();
   }
 
 
