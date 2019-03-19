@@ -98,6 +98,9 @@ public:
   void build_neighbor_map(std::vector<Group> &groups);
   void handle_collisions(Person &person);
 
+  void print_v_avg();
+  void print_density();
+
 private:
   void fill();
   float hash_position(glm::vec2 pos);

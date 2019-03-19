@@ -176,3 +176,21 @@ Cell* Grid::getCell(glm::ivec2 ij) {
   }
   return &grid[ij[1]][ij[0]];
 }
+
+void Grid::print_v_avg() {
+  for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
+    for (auto &cell : *row) {
+      std::cout << cell.v_avg[0] << "-" << cell.v_avg[1] << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
+void Grid::print_density() {
+  for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
+    for (auto &cell : *row) {
+      std::cout << cell.rho << " ";
+    }
+    std::cout << std::endl;
+  }
+}

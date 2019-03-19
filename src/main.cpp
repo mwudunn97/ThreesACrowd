@@ -13,6 +13,7 @@
 #include <json.hpp>
 #include <algorithm>
 #include <pointDisplay.h>
+#include <iomanip>
 
 using json = nlohmann::json;
 
@@ -39,34 +40,34 @@ void density_conversion(Grid &grid, std::vector<Group> &groups) {
 
 
     for (auto &person : people) {
-      // TODO: will this find the correct, closest cell center?
-      glm::ivec2 gridIndex = person.getGridIndex();
+      /* Simplifying: we just take the cell index of the one we're in, not the center */
+      glm::ivec2 gridIndex = glm::floor(person.getPos());
       float dx = person.getPos()[0] - gridIndex[0];
       float dy = person.getPos()[1] - gridIndex[1];
       Cell *curr_cell = grid.getCell(gridIndex);
 
-      // add density to current cell
-      float rho_a = static_cast<float>(pow(std::min(1 - dx, 1 - dy), lambda));
+      /* add density to current cell */
+      auto rho_a = static_cast<float>(pow(std::min(1 - dx, 1 - dy), lambda));
       curr_cell->rho += rho_a;
       // accumulate weighted density for avg velocity calculation
       curr_cell->v_avg += person.getVelocity() * rho_a;
 
       // TODO: think of a cleaner way to write this
       if (gridIndex[0] + 1 < width) {
-        // add density to cell to the right
-        float rho_b = static_cast<float>(pow(std::min(dx, 1 - dy), lambda));
+        /* add density to cell to the right */
+        auto rho_b = static_cast<float>(pow(std::min(dx, 1 - dy), lambda));
         curr_cell->neighbors[East]->rho += rho_b;
 
         if (gridIndex[1] - 1 >= 0) {
-          // add density to cell above and to the right
-          float rho_c = static_cast<float>(pow(std::min(dx, dy), lambda));
+          /* add density to cell above and to the right */
+          auto rho_c = static_cast<float>(pow(std::min(dx, dy), lambda));
           curr_cell->neighbors[North]->neighbors[East]->rho += rho_c;
         }
       }
 
       if (gridIndex[1] - 1 >= 0) {
-        // add density to cell above
-        float rho_d = static_cast<float>(pow(std::min(1 - dx, dy), lambda));
+        /* add density to cell above */
+        auto rho_d = static_cast<float>(pow(std::min(1 - dx, dy), lambda));
         curr_cell->neighbors[North]->rho += rho_d;
       }
     }
@@ -353,6 +354,7 @@ int load_groups(json &j, std::vector<Group> *groups) {
 
 int main(int argc, char* argv[]) {
   std::cout << "Three's A Crowd Simulator" << std::endl;
+  std::cout << setprecision(2);
   // test_structures();
   // test_potential_field();
 
@@ -387,11 +389,16 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < iterations; i++) {
     std::cout << "Iteration " << i << std::endl;
     density_conversion(grid, groups);
+    grid.print_density();
+    grid.print_v_avg();
     calculate_unit_cost(grid);
     for (Group &group : groups) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
       crowd_advection(grid, group);
+      for (Person &p : group.people) {
+        std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;
+      }
     }
     enforce_minimum_distance(grid, groups);
   }
