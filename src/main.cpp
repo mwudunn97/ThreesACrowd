@@ -212,9 +212,9 @@ void finite_differences_approx(Cell &cell) {
     cell.edges[d_mx]->phi_grad = phi_m - phi_mx;
     cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
   } else {
-    float a = c_mx + c_my;
-    float b = 2.0f * (c_my * phi_mx + c_mx * phi_my);
-    float c = (c_my * phi_mx * phi_mx) + (c_mx * phi_my * phi_my) - (c_mx * c_my);
+    float a = (c_mx + c_my);
+    float b = -2.0f * (c_my * phi_mx + c_mx * phi_my) ;
+    float c = ((c_my * phi_mx * phi_mx) + (c_mx * phi_my * phi_my)) ;
     float det = b * b - 4.0f * a * c;
     phi_m = (-1.0f * b + std::sqrt(det)) / (2.0f * a);
 
