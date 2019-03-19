@@ -112,7 +112,7 @@ void calculate_unit_cost(Grid &grid) {
         }
 
         if (!cell.neighbors[dir]) {
-          cell.f[dir] = topo_speed;
+          cell.f[dir] = 0.0f;
         } else if (cell.neighbors[dir]->rho <= grid.rho_min) {
           cell.f[dir] = topo_speed;
         } else if (cell.neighbors[dir]->rho >= grid.rho_max) {
@@ -389,9 +389,11 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < iterations; i++) {
     std::cout << "Iteration " << i << std::endl;
     density_conversion(grid, groups);
-    grid.print_density();
-    grid.print_v_avg();
     calculate_unit_cost(grid);
+    //grid.print_density();
+    //grid.print_v_avg();
+    //grid.print_f();
+    //grid.print_C();
     for (Group &group : groups) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);

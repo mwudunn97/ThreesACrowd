@@ -100,6 +100,8 @@ public:
 
   void print_v_avg();
   void print_density();
+  void print_f();
+  void print_C();
 
 private:
   void fill();

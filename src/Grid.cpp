@@ -180,7 +180,7 @@ Cell* Grid::getCell(glm::ivec2 ij) {
 void Grid::print_v_avg() {
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
     for (auto &cell : *row) {
-      std::cout << cell.v_avg[0] << "-" << cell.v_avg[1] << " ";
+      std::cout << cell.v_avg[0] << "|" << cell.v_avg[1] << " ";
     }
     std::cout << std::endl;
   }
@@ -190,6 +190,26 @@ void Grid::print_density() {
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
     for (auto &cell : *row) {
       std::cout << cell.rho << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
+void Grid::print_f() {
+  for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
+    for (auto &cell : *row) {
+      std::cout << cell.f[0] << "|" << cell.f[1] << "|" << cell.f[2] <<
+                "|" << cell.f[3] << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
+void Grid::print_C() {
+  for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
+    for (auto &cell : *row) {
+      std::cout << cell.C[0] << "|" << cell.C[1] << "|" << cell.C[2] <<
+                "|" << cell.C[3] << " ";
     }
     std::cout << std::endl;
   }
