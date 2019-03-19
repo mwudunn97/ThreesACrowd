@@ -244,14 +244,15 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
   std::make_heap(flattened_grid.begin(), flattened_grid.end(), cmp);
   for (int i = 0; i < flattened_grid.size(); i++) {
     Cell* next = flattened_grid.front();
-    std::pop_heap (flattened_grid.begin(),flattened_grid.end());
+    std::pop_heap (flattened_grid.begin(),flattened_grid.end()); flattened_grid.pop_back();
 
     for (Cell *c : next->neighbors) {
       if (c != nullptr) finite_differences_approx(*c);
     }
     finite_differences_approx(*next);
-    std::make_heap(flattened_grid.begin(), flattened_grid.end() - i);
+    std::make_heap(flattened_grid.begin(), flattened_grid.end(), cmp);
   }
+  
 }
 
 void calc_phi_grad(Grid &grid) {
