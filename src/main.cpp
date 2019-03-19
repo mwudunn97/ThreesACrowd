@@ -273,7 +273,7 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
       }
     }
   }
-  
+
 }
 
 void calc_phi_grad(Grid &grid) {
