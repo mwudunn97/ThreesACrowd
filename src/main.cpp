@@ -205,21 +205,39 @@ void finite_differences_approx(Cell &cell) {
     float det = c_mx;
     phi_m = phi_my + std::sqrt(det);
     cell.edges[d_my]->phi_grad = phi_m - phi_my;
-    cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    if (d_my == South) {
+      cell.edges[d_my]->v = -1.0f * cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    } else {
+      cell.edges[d_my]->v = 1.0f * cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    }
   } else if (std::isinf(phi_my)) {
     float det = c_my;
     phi_m = phi_mx + std::sqrt(det);
     cell.edges[d_mx]->phi_grad = phi_m - phi_mx;
-    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    if (d_my == East) {
+      cell.edges[d_mx]->v = -1.0 * cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    } else {
+      cell.edges[d_mx]->v = 1.0f * cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    }
   } else {
     float a = (c_mx + c_my);
     float b = -2.0f * (c_my * phi_mx + c_mx * phi_my) ;
     phi_m = (-1.0f * b) / (2.0f * a);
 
     cell.edges[d_mx]->phi_grad = phi_m - phi_mx;
-    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    if (d_my == East) {
+      cell.edges[d_mx]->v = -1.0 * cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    } else {
+      cell.edges[d_mx]->v = 1.0 * cell.edges[d_mx]->phi_grad * (float) cell.f[d_mx];
+    }
+
     cell.edges[d_my]->phi_grad = phi_m - phi_my;
-    cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    if (d_my == South) {
+      cell.edges[d_my]->v = -1.0f * cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    } else {
+      cell.edges[d_my]->v = 1.0f * cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
+    }
+
   }
 
   if (cell.phi_tmp > phi_m) {
@@ -261,7 +279,7 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
       }
     }
   }
-  
+
 }
 
 void calc_phi_grad(Grid &grid) {
