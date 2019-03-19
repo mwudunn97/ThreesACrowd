@@ -223,11 +223,10 @@ void finite_differences_approx(Cell &cell) {
     cell.edges[d_my]->phi_grad = phi_m - phi_my;
     cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
   }
-    if (cell.phi > phi_m) {
-      cell.phi = phi_m;
-    }
 
-
+  if (cell.phi > phi_m) {
+    cell.phi = phi_m;
+  }
 }
 
 // Compare function for the heap
@@ -254,6 +253,45 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
     }
     finite_differences_approx(*next);
     std::make_heap(flattened_grid.begin(), flattened_grid.end() - i);
+  }
+}
+
+void calc_phi_grad(Grid &grid) {
+  /* Calculate phi gradients in Edges from phi values in Cells */
+  for (auto &row : grid.grid) {
+    // Leftmost edges
+    row[0].edges[West]->phi_grad = 0.0f;
+    for (auto &cell : row) {
+      cell.edges[East]->phi_grad = cell.neighbors[East] ?
+          cell.neighbors[East]->phi - cell.phi : 0.0f;
+      cell.edges[North]->phi_grad = cell.neighbors[North] ?
+          cell.neighbors[North]->phi - cell.phi : 0.0f;
+    }
+  }
+  // Bottom row
+  for (auto &cell : grid.grid[0]) {
+    cell.edges[South]->phi_grad = 0.0f;
+  }
+}
+
+void normalize_gradients(Grid &grid) {
+  /* Take each cell and make sure the phi_grads at its Edges are normalized
+   * relative to each other */
+  for (auto &row: grid.grid) {
+    for (auto &cell : row) {
+      float x_diff = cell.edges[East]->phi_grad - cell.edges[West]->phi_grad;
+      float y_diff = cell.edges[North]->phi_grad - cell.edges[South]->phi_grad;
+
+      glm::vec2 normalized = glm::normalize(glm::vec2(x_diff, y_diff));
+
+      float x_mult = x_diff != 0.0f ? normalized.x / x_diff : 1.0f;
+      float y_mult = y_diff != 0.0f ? normalized.y / y_diff : 1.0f;
+
+      cell.edges[East]->phi_grad *= x_mult;
+      cell.edges[West]->phi_grad *= x_mult;
+      cell.edges[North]->phi_grad *= y_mult;
+      cell.edges[South]->phi_grad *= y_mult;
+    }
   }
 }
 
@@ -390,14 +428,9 @@ int main(int argc, char* argv[]) {
     std::cout << "Iteration " << i << std::endl;
     density_conversion(grid, groups);
     calculate_unit_cost(grid);
-    //grid.print_density();
-    //grid.print_v_avg();
-    //grid.print_f();
-    //grid.print_C();
     for (Group &group : groups) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
-      grid.print_phi_grad();
       crowd_advection(grid, group);
       for (Person &p : group.people) {
         std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;

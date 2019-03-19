@@ -243,6 +243,7 @@ void Grid::print_phi_grad() {
     }
     std::cout << std::endl;
   }
+  std::cout << std::endl;
 }
 
 void Grid::print_v() {
@@ -262,4 +263,5 @@ void Grid::print_v() {
     }
     std::cout << std::endl;
   }
+  std::cout << std::endl;
 }
