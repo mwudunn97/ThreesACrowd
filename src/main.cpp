@@ -12,7 +12,7 @@
 #include "Person.h"
 #include <json.hpp>
 #include <algorithm>
-#include <pointDisplay.h>
+#include "pointDisplay.h"
 #include <iomanip>
 
 using json = nlohmann::json;
@@ -517,19 +517,14 @@ int main(int argc, char* argv[]) {
     for (Group &group : groups) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
-      //grid.print_C();
-      //grid.print_phi();
-      //grid.print_phi_grad();
-      //grid.print_v();
-      //grid.print_f();
       crowd_advection(grid, group);
-      //grid.print_v_avg();
       for (Person &p : group.people) {
         std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;
       }
+      draw_people(groups);
     }
     enforce_minimum_distance(grid, groups);
-    //getchar();
+    getchar();
   }
 
 

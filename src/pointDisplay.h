@@ -21,6 +21,7 @@
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include "Person.h"
 using namespace glm;
 using namespace std;
 
@@ -28,6 +29,7 @@ using namespace std;
 void display_point(glm::vec2 point);
 int write_points(vector<vector<vec2>> points);
 void draw_points(std::vector<vec2> points);
+void draw_people(std::vector<Group> groups);
 vector<vector<vec2>> generate_examples();
 void display();
 void myinit();

@@ -59,6 +59,25 @@ void draw_points(std::vector<vec2> points) {
   glFlush();
 }
 
+/* Draws people as points */
+void draw_people(std::vector<Group> groups) {
+  GLfloat point_color[3] = {0.0,0.0,0.0};
+  glEnable( GL_POINT_SMOOTH );
+  glEnable( GL_BLEND );
+  glPointSize(circle_display_rad);
+
+  glColor3fv(point_color);
+  glBegin(GL_POINTS);
+  for (auto &group : groups) {
+    for (auto &person : group.people) {
+      display_point(person.getPos());
+    }
+
+  }
+  glEnd();
+  glFlush();
+}
+
 //Test example
 vector<vector<vec2>> generate_examples() {
   vector<vector<vec2>> traj;
