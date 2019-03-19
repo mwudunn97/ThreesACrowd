@@ -58,6 +58,8 @@ void Grid::clearGridVals() {
     for (int i = 0; i < height; i++) {
       Cell * cell = getCell(i, j);
       cell->phi = std::numeric_limits<float>::infinity();
+      cell->phi_tmp = std::numeric_limits<float>::infinity();
+      cell->status = UNKNOWN;
       for (int dir = East; dir <= South; dir++) {
         Edge *e = cell->edges[dir];
         e->phi_grad = 0.0f;

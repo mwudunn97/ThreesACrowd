@@ -22,6 +22,12 @@ enum Direction {
   South = 3
 };
 
+enum Status {
+  KNOWN,
+  CANDIDATE,
+  UNKNOWN
+};
+
 struct Edge {
   /* Positive is Northward and Eastward */
   float h_grad = 0;
@@ -47,6 +53,8 @@ struct Cell {
   /* Center of this cell */
   float g = 0;
   float phi = 0;
+  float phi_tmp = 0;
+  Status status = UNKNOWN;
   float rho = 0;
   float h = 0;
   glm::vec2 v_avg {};

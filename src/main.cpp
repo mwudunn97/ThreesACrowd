@@ -222,14 +222,14 @@ void finite_differences_approx(Cell &cell) {
     cell.edges[d_mx]->v = cell.edges[d_my]->phi_grad * (float) cell.f[d_my];
   }
 
-  if (cell.phi > phi_m) {
-    cell.phi = phi_m;
+  if (cell.phi_tmp > phi_m) {
+    cell.phi_tmp = phi_m;
   }
 }
 
 // Compare function for the heap
 bool cmp(const Cell * a, const Cell * b) {
-  return a->phi > b->phi;
+  return a->phi_tmp > b->phi_tmp;
 }
 
 
@@ -238,19 +238,28 @@ void construct_dynamic_potential_field(Grid &grid, Group &group) {
      and potential gradients (phi and del phi)
      also calculate the velocity field of velocities v */
   glm::ivec2 goal = group.goal;
-  std::vector<Cell*> flattened_grid = flatten(grid);
-  int goal_index = ((int) goal[1]) * grid.getWidth() + ((int) goal[0]);
-  flattened_grid[goal_index]->phi = 0;
-  std::make_heap(flattened_grid.begin(), flattened_grid.end(), cmp);
-  for (int i = 0; i < flattened_grid.size(); i++) {
-    Cell* next = flattened_grid.front();
-    std::pop_heap (flattened_grid.begin(),flattened_grid.end()); flattened_grid.pop_back();
+  Cell *goal_cell = grid.getCell(goal);
+  std::vector<Cell*> candidates = {goal_cell};
+  std::make_heap(candidates.begin(), candidates.end(), cmp);
+  goal_cell->phi_tmp = 0;
+  for (int i = 0; i < grid.getHeight() * grid.getWidth(); i++) {
+    std::pop_heap(candidates.begin(), candidates.end(), cmp);
+    Cell *curr = candidates.back();
+    candidates.pop_back();
 
-    for (Cell *c : next->neighbors) {
-      if (c != nullptr) finite_differences_approx(*c);
+    curr->phi = curr->phi_tmp;
+    curr->status = KNOWN;
+
+    for (Cell *c : curr->neighbors) {
+      if (c != nullptr && c->status != KNOWN) {
+        finite_differences_approx(*c);
+        if (c->status == UNKNOWN) {
+          c->status = CANDIDATE;
+          candidates.push_back(c);
+          std::push_heap(candidates.begin(), candidates.end(), cmp);
+        }
+      }
     }
-    finite_differences_approx(*next);
-    std::make_heap(flattened_grid.begin(), flattened_grid.end(), cmp);
   }
   
 }
@@ -498,6 +507,9 @@ int main(int argc, char* argv[]) {
     for (Group &group : groups) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
+      grid.print_C();
+      grid.print_phi();
+      grid.print_phi_grad();
       crowd_advection(grid, group);
       for (Person &p : group.people) {
         std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;
