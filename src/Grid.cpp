@@ -6,6 +6,7 @@
 #include "Grid.h"
 #include <exception>
 #include <iostream>
+#include <iomanip>
 
 Cell::Cell(Edge *edgeE, Edge *edgeN, Edge *edgeW, Edge *edgeS, int i, int j)
  : i(i), j(j) {
@@ -180,7 +181,7 @@ Cell* Grid::getCell(glm::ivec2 ij) {
 void Grid::print_v_avg() {
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
     for (auto &cell : *row) {
-      std::cout << cell.v_avg[0] << "|" << cell.v_avg[1] << " ";
+      std::cout << std::setw(4) << cell.v_avg[0] << " " << std::setw(4) << cell.v_avg[1] << " ||";
     }
     std::cout << std::endl;
   }
@@ -189,7 +190,7 @@ void Grid::print_v_avg() {
 void Grid::print_density() {
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
     for (auto &cell : *row) {
-      std::cout << cell.rho << " ";
+      std::cout << std::setw(5) << cell.rho << " ";
     }
     std::cout << std::endl;
   }
@@ -210,6 +211,54 @@ void Grid::print_C() {
     for (auto &cell : *row) {
       std::cout << cell.C[0] << "|" << cell.C[1] << "|" << cell.C[2] <<
                 "|" << cell.C[3] << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
+
+void Grid::print_phi() {
+  for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
+    for (auto &cell : *row) {
+      std::cout << cell.phi << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
+void Grid::print_phi_grad() {
+  std::cout << "   ";
+  for (auto &cell : grid[height - 1]) {
+    std::cout << std::setw(6) <<cell.edges[North]->phi_grad << " ";
+  }
+  std::cout << std::endl;
+  for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
+    std::cout << std::setw(6) <<  (*row)[0].edges[West]->phi_grad << " ";
+    for (auto &cell : *row) {
+      std::cout << std::setw(6) << cell.edges[East]->phi_grad << " ";
+    }
+    std::cout << std::endl << "   ";
+    for (auto &cell : *row) {
+      std::cout << std::setw(6) << cell.edges[South]->phi_grad << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
+void Grid::print_v() {
+  std::cout << "   ";
+  for (auto &cell : grid[height - 1]) {
+    std::cout << cell.edges[North]->v<< " ";
+  }
+  std::cout << std::endl;
+  for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
+    std::cout << (*row)[0].edges[West]->v << " ";
+    for (auto &cell : *row) {
+      std::cout << cell.edges[East]->v << " ";
+    }
+    std::cout << std::endl << "   ";
+    for (auto &cell : *row) {
+      std::cout << cell.edges[South]->v << " ";
     }
     std::cout << std::endl;
   }

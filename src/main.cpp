@@ -397,6 +397,7 @@ int main(int argc, char* argv[]) {
     for (Group &group : groups) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
+      grid.print_phi_grad();
       crowd_advection(grid, group);
       for (Person &p : group.people) {
         std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;

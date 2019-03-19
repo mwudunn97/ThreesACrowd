@@ -102,6 +102,9 @@ public:
   void print_density();
   void print_f();
   void print_C();
+  void print_phi();
+  void print_phi_grad();
+  void print_v();
 
 private:
   void fill();
