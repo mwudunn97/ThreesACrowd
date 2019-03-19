@@ -222,8 +222,9 @@ void Grid::print_C() {
 void Grid::print_phi() {
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
     for (auto &cell : *row) {
-      std::cout << cell.phi << " ";
+      std::cout << std::setw(4) << cell.phi << " ";
     }
+
     std::cout << std::endl;
   }
 }

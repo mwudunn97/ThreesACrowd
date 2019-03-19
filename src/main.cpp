@@ -222,7 +222,7 @@ void finite_differences_approx(Cell &cell) {
     phi_m = phi_mx + std::sqrt(det);
     cell.edges[d_mx]->phi_grad = phi_mx - phi_m;
     cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad *
-        (float) -cell.neighbors[d_my]->f[(d_mx + 2) % 4];
+        (float) -cell.neighbors[d_mx]->f[(d_mx + 2) % 4];
   } else {
     float a = (c_mx + c_my);
     float b = -2.0f * (c_my * phi_mx + c_mx * phi_my) ;
@@ -233,7 +233,7 @@ void finite_differences_approx(Cell &cell) {
         (float) -cell.neighbors[d_mx]->f[(d_mx + 2) % 4];
     cell.edges[d_my]->phi_grad = phi_my - phi_m;
     cell.edges[d_my]->v = cell.edges[d_my]->phi_grad *
-        (float) -cell.neighbors[d_mx]->f[(d_my + 2) % 4];
+        (float) -cell.neighbors[d_my]->f[(d_my + 2) % 4];
   }
 
   cell.phi_tmp = phi_m;
