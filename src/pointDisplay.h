@@ -8,11 +8,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
-#ifdef __MINGW32__
-#include <GL/glut.h>
-#else
-#include <GLUT/glut.h>
-#endif
+#include <GL/freeglut.h>
 #include <iterator>
 #include <fstream>
 
@@ -28,12 +24,14 @@ using namespace std;
 
 void display_point(glm::vec2 point);
 int write_points(vector<vector<vec2>> points);
-void draw_points(std::vector<vec2> points);
-void draw_people(std::vector<Group> groups);
+void draw_points(std::vector<std::vector<vec2>> points);
+void set_points_from_groups(std::vector<Group> groups);
 vector<vector<vec2>> generate_examples();
 void display();
-void myinit();
+void myinit(float width, float height);
 int pointDisplay(int argc, char** argv);
-void display_points();
+void display_points(float width, float height);
+vector<vec2> points_from_groups(vector<Group> groups);
+void set_points(vector<vector<vec2>> points);
 
 #endif //THREESACROWD_POINTDISPLAY_H

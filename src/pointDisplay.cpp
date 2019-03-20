@@ -10,8 +10,8 @@
 #include "pointDisplay.h"
 
 
-const int num_circle_segments = 100;
-const int circle_display_rad = 5.0;
+const int num_circle_segments = 1000;
+const int circle_display_rad = 1.0;
 
 void display_point(glm::vec2 point) {
 
@@ -44,7 +44,7 @@ int write_points(vector<vector<vec2>> points, string filename) {
 }
 
 //Takes a set of input points and draws them to the screen
-void draw_points(std::vector<vec2> points) {
+void draw_points(vector<vector<vec2>> point_traj) {
   GLfloat point_color[3] = {0.0,0.0,0.0};
   glEnable( GL_POINT_SMOOTH );
   glEnable( GL_BLEND );
@@ -52,8 +52,10 @@ void draw_points(std::vector<vec2> points) {
 
   glColor3fv(point_color);
   glBegin(GL_POINTS);
-  for (std::vector<vec2>::iterator vert = points.begin(); vert != points.end(); ++vert) {
-    display_point(*vert);
+  for (auto &points : point_traj) {
+    for (std::vector<vec2>::iterator vert = points.begin(); vert != points.end(); ++vert) {
+      display_point(*vert);
+    }
   }
   glEnd();
   glFlush();
@@ -72,7 +74,6 @@ void draw_people(std::vector<Group> groups) {
     for (auto &person : group.people) {
       display_point(person.getPos());
     }
-
   }
   glEnd();
   glFlush();
@@ -108,25 +109,58 @@ vector<vector<vec2>> generate_examples() {
 //GLUT needs a global vec
 vector<vector<vec2>> point_traj;
 
+
+//Use this to set the point vector that gets drawn
 void set_points(vector<vector<vec2>> points) {
   point_traj = points;
 }
+
+//Alternative function that operates on groups
+void set_points_from_groups(vector<Group> groups) {
+
+  vector<vec2> people_pos;
+  for (auto &group : groups) {
+    for (auto &person : group.people) {
+      people_pos.push_back(person.getPos());
+    }
+  }
+
+  vector<vector<vec2>> points;
+  points.push_back(people_pos);
+  point_traj = points;
+
+}
+
+//Converts groups to single vector of points
+vector<vec2> points_from_groups(vector<Group> groups) {
+
+  vector<vec2> people_pos;
+  for (auto &group : groups) {
+    for (auto &person : group.people) {
+      people_pos.push_back(person.getPos());
+    }
+  }
+
+  return people_pos;
+
+}
+
+
 
 vector<vector<vec2>> get_points() {
   return point_traj;
 }
 
-//GLUT display function
+//GLUT display function, anything you want to display has to be called in this function
 void display()
 {
 
   vector<vector<vec2>> points = get_points();
-  vector<vec2> vec = points[0];
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glBegin(GL_POINTS);
-  draw_points(vec);
+  draw_points(points);
 
   glEnd();
   glFlush();
@@ -134,23 +168,24 @@ void display()
 }
 
 //Init matrices
-void myinit() {
+void myinit(float width, float height) {
   glEnable(GL_DEPTH_TEST);
   glClearColor(1.0, 1.0, 1.0, 1.0);
   glColor3f(0.0, 1.0, 0.0);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluOrtho2D(0.0,800,0.0,800.0);
+  gluOrtho2D(0.0,width,0.0,height);
 
   glMatrixMode(GL_MODELVIEW);
 }
 
-void display_points(vector<vector<vec2>> points) {
-  set_points(points);
+void display_points(float width, float height) {
   glutDisplayFunc(display);
 
-  myinit();
+  myinit(width, height);
+  /* Allows you to call the display function and continue processing, only works if freeglut works on your machine */
+  //glutMainLoopEvent();
   glutMainLoop();
 
 }

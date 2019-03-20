@@ -58,14 +58,14 @@ void density_conversion(Grid &grid, std::vector<Group> &groups) {
         auto rho_b = static_cast<float>(pow(std::min(dx, 1 - dy), lambda));
         curr_cell->neighbors[East]->rho += rho_b;
 
-        if (gridIndex[1] - 1 >= 0) {
+        if (gridIndex[1] + 1 < height) {
           /* add density to cell above and to the right */
           auto rho_c = static_cast<float>(pow(std::min(dx, dy), lambda));
           curr_cell->neighbors[North]->neighbors[East]->rho += rho_c;
         }
       }
 
-      if (gridIndex[1] - 1 >= 0) {
+      if (gridIndex[1] + 1 < height) {
         /* add density to cell above */
         auto rho_d = static_cast<float>(pow(std::min(1 - dx, dy), lambda));
         curr_cell->neighbors[North]->rho += rho_d;
@@ -485,8 +485,7 @@ int main(int argc, char* argv[]) {
   /* Init point display */
   pointDisplay(argc, argv);
 
-  /* Display points function, replace with actual point vector */
-  //display_points(points);
+
 
   /* Write points to a file */
   //write_points(points, filename);
@@ -510,6 +509,7 @@ int main(int argc, char* argv[]) {
   }
 
   int iterations = j["iterations"];
+  std::vector<std::vector<glm::vec2>> point_traj;
   for (int i = 0; i < iterations; i++) {
     std::cout << "Iteration " << i << std::endl;
     density_conversion(grid, groups);
@@ -521,11 +521,20 @@ int main(int argc, char* argv[]) {
       for (Person &p : group.people) {
         std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;
       }
-      draw_people(groups);
+      point_traj.push_back(points_from_groups(groups));
+
     }
     enforce_minimum_distance(grid, groups);
-    getchar();
+
+    if (i == 30) {
+      set_points(point_traj);
+      /* Display points function, replace with actual point vector */
+      //display_points(grid.getWidth(), grid.getHeight());
+    }
   }
+  set_points(point_traj);
+  /* Display points function, replace with actual point vector */
+  display_points(grid.getWidth(), grid.getHeight());
 
 
   return 0;
