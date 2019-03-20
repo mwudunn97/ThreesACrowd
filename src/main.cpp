@@ -146,6 +146,24 @@ std::vector<Cell*> flatten(Grid &grid) {
   return result;
 }
 
+void normalize_gradients(Cell* cell) {
+  /* Take each cell and make sure the phi_grads at its Edges are normalized
+   * relative to each other */
+  float x_diff = cell->edges[East]->phi_grad - cell->edges[West]->phi_grad;
+  float y_diff = cell->edges[North]->phi_grad - cell->edges[South]->phi_grad;
+
+  if (!(x_diff == 0 && y_diff == 0)) {
+    glm::vec2 normalized = glm::normalize(glm::vec2(x_diff, y_diff));
+
+    float x_mult = x_diff != 0.0f ? normalized.x / x_diff : 1.0f;
+    float y_mult = y_diff != 0.0f ? normalized.y / y_diff : 1.0f;
+
+    cell->edges[East]->phi_grad *= x_mult;
+    cell->edges[West]->phi_grad *= x_mult;
+    cell->edges[North]->phi_grad *= y_mult;
+    cell->edges[South]->phi_grad *= y_mult;
+  }
+}
 
 void finite_differences_approx(Cell &cell) {
   float phi_mx;
@@ -215,7 +233,7 @@ void finite_differences_approx(Cell &cell) {
     float det = c_mx;
     phi_m = phi_my + std::sqrt(det);
     cell.edges[d_my]->phi_grad = phi_my - phi_m;
-
+    normalize_gradients(&cell);
     float velocityY = cell.edges[d_my]->phi_grad *
                       (float) -cell.f[d_my];
     cell.edges[d_my]->v = velocityY * (float) n_theta_int[d_my];
@@ -223,6 +241,7 @@ void finite_differences_approx(Cell &cell) {
     float det = c_my;
     phi_m = phi_mx + std::sqrt(det);
     cell.edges[d_mx]->phi_grad = phi_mx - phi_m;
+    normalize_gradients(&cell);
     float velocityX = cell.edges[d_mx]->phi_grad *
                       (float) -cell.f[d_mx];
     cell.edges[d_mx]->v = velocityX * (float) n_theta_int[d_mx];
@@ -233,16 +252,17 @@ void finite_differences_approx(Cell &cell) {
 
     cell.edges[d_mx]->phi_grad = phi_mx - phi_m;
     cell.edges[d_my]->phi_grad = phi_my - phi_m;
+    normalize_gradients(&cell);
+
+
     float velocityX = cell.edges[d_mx]->phi_grad *
                       (float) -cell.f[d_mx];
     float velocityY = cell.edges[d_my]->phi_grad *
                       (float) -cell.f[d_my];
+
+
     cell.edges[d_mx]->v = velocityX * (float) n_theta_int[d_mx];
-
     cell.edges[d_my]->v = velocityY * (float) n_theta_int[d_my];
-
-
-
 
   }
 
@@ -304,26 +324,7 @@ void calc_phi_grad(Grid &grid) {
   }
 }
 
-void normalize_gradients(Grid &grid) {
-  /* Take each cell and make sure the phi_grads at its Edges are normalized
-   * relative to each other */
-  for (auto &row: grid.grid) {
-    for (auto &cell : row) {
-      float x_diff = cell.edges[East]->phi_grad - cell.edges[West]->phi_grad;
-      float y_diff = cell.edges[North]->phi_grad - cell.edges[South]->phi_grad;
 
-      glm::vec2 normalized = glm::normalize(glm::vec2(x_diff, y_diff));
-
-      float x_mult = x_diff != 0.0f ? normalized.x / x_diff : 1.0f;
-      float y_mult = y_diff != 0.0f ? normalized.y / y_diff : 1.0f;
-
-      cell.edges[East]->phi_grad *= x_mult;
-      cell.edges[West]->phi_grad *= x_mult;
-      cell.edges[North]->phi_grad *= y_mult;
-      cell.edges[South]->phi_grad *= y_mult;
-    }
-  }
-}
 
 glm::vec2 interpolateTwo(float x, float x1, float x2, glm::vec2 v1, glm::vec2 v2) {
   //  return v1 * (cell_index + 1.5f - personLoc) + v2 * (personLoc - cell_index + 0.5f);
@@ -361,10 +362,6 @@ void crowd_advection(Grid &grid, Group &group) {
     cellAvel = cellBvel = cellCvel = cellDvel = glm::vec2(0.0f);
 
     glm::vec2 pos = person.getPos();
-    Cell *cellA;
-    Cell *cellB;
-    Cell *cellC;
-    Cell *cellD;
 
     if (pos[0] - 0.5 >= 0 && pos[1] - 0.5 >= 0) {
       Cell * cellA = grid.getCellFromPos(pos - vec2(0.5, 0.5));
@@ -548,11 +545,6 @@ int main(int argc, char* argv[]) {
     }
     enforce_minimum_distance(grid, groups);
 
-    if (i == 7) {
-      set_points(point_traj);
-      /* Display points function, replace with actual point vector */
-      //display_points(grid.getWidth(), grid.getHeight());
-    }
   }
   set_points(point_traj);
   /* Display points function, replace with actual point vector */
