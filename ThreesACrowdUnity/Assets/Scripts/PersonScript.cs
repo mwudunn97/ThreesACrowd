@@ -12,7 +12,7 @@ public class PersonScript : MonoBehaviour
 	}
 
 	// Update is called once per frame
-	void FixedUpdate()
+	void Update()
 	{
         if (points.Length == 0) {
             return;
@@ -23,6 +23,7 @@ public class PersonScript : MonoBehaviour
         GameObject plane = GameObject.FindGameObjectWithTag("Plane");
         Bounds bounds = plane.GetComponent<Renderer>().bounds;
         Vector3 nextPos = bounds.min + Vector3.Scale(nextLoc, bounds.size);
+        nextPos += new Vector3(0.0f, 0.5f, 0.0f);
         Debug.Log(bounds.size);
         this.gameObject.transform.position = nextPos;
 	}

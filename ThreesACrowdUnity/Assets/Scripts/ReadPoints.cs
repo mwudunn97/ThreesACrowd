@@ -40,8 +40,8 @@ public class ReadPoints : MonoBehaviour {
             }
             string[] pos = fLines[i].Split(' ');
             int index = i - 1;
-            int person_index = index / num_points;
-            int point_index = index % num_points;
+            int person_index = index % num_people;
+            int point_index = index / num_people;
 
       
             points[person_index, point_index].x = float.Parse(pos[0]);

@@ -65,6 +65,8 @@
     <Compile Include="Assets\Scripts\ReadPoints.cs" />
     <Compile Include="Assets\Scripts\Time.cs" />
     <None Include="Assets\Scenes\locations.txt" />
+    <None Include="Assets\Scenes\100ppl1grp.txt" />
+    <None Include="Assets\Scenes\1ppl1grp.txt" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>/Users/MarcWuDunn/ThreesACrowd/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

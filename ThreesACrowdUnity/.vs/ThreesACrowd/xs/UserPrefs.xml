@@ -1,0 +1,15 @@
+﻿<Properties StartupConfiguration="{7D7F26D3-7A6C-F65B-87D9-E35A82D25074}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/PersonScript.cs">
+    <Files>
+      <File FileName="Assets/Scripts/ReadPoints.cs" Line="48" Column="71" />
+      <File FileName="Assets/Scripts/PersonScript.cs" Line="22" Column="49" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

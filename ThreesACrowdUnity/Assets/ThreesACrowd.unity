@@ -323,7 +323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81c25db0c96b3481b9f1ad3bb2e751c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointFile: {fileID: 4900000, guid: e37160334769546fca2a9d3009be27a9, type: 3}
+  pointFile: {fileID: 4900000, guid: d297b5e469054443f89f59136c5b3ee8, type: 3}
   personPrefab: {fileID: 4368132755172120, guid: 610c82085a6724664a8878390ce93383,
     type: 2}
 --- !u!4 &896613578
@@ -421,7 +421,7 @@ Transform:
   m_GameObject: {fileID: 1435566223}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 1, z: 2}
+  m_LocalScale: {x: 5, y: 1, z: 5}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
