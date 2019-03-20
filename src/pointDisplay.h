@@ -23,7 +23,8 @@ using namespace std;
 
 
 void display_point(glm::vec2 point);
-int write_points(vector<vector<vec2>> points);
+int write_points(vector<vector<vec2>> points, string filename);
+void set_grid_sizes(float width, float height);
 void draw_points(std::vector<std::vector<vec2>> points);
 void set_points_from_groups(std::vector<Group> groups);
 vector<vector<vec2>> generate_examples();
