@@ -12,6 +12,13 @@
 
 const int num_circle_segments = 1000;
 const int circle_display_rad = 1.0;
+const float resX = 100.0f;
+const float resY = 100.0f;
+
+//GLUT needs a global vec
+vector<vector<vec2>> point_traj;
+float gridWidth = 10.0f;
+float gridHeight = 10.0f;
 
 void display_point(glm::vec2 point) {
 
@@ -54,7 +61,8 @@ void draw_points(vector<vector<vec2>> point_traj) {
   glBegin(GL_POINTS);
   for (auto &points : point_traj) {
     for (std::vector<vec2>::iterator vert = points.begin(); vert != points.end(); ++vert) {
-      display_point(*vert);
+      vec2 displayVert = glm::vec2(vert->x * (resX / gridWidth), vert->y * (resY / gridHeight));
+      display_point(displayVert);
     }
   }
   glEnd();
@@ -106,8 +114,8 @@ vector<vector<vec2>> generate_examples() {
   return traj;
 }
 
-//GLUT needs a global vec
-vector<vector<vec2>> point_traj;
+
+
 
 
 //Use this to set the point vector that gets drawn
@@ -168,22 +176,23 @@ void display()
 }
 
 //Init matrices
-void myinit(float width, float height) {
+void myinit() {
   glEnable(GL_DEPTH_TEST);
   glClearColor(1.0, 1.0, 1.0, 1.0);
   glColor3f(0.0, 1.0, 0.0);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluOrtho2D(0.0,width,0.0,height);
+  gluOrtho2D(0.0,resX,0.0,resY);
 
   glMatrixMode(GL_MODELVIEW);
 }
 
 void display_points(float width, float height) {
   glutDisplayFunc(display);
-
-  myinit(width, height);
+  gridWidth = width;
+  gridHeight = height;
+  myinit();
   /* Allows you to call the display function and continue processing, only works if freeglut works on your machine */
   //glutMainLoopEvent();
   glutMainLoop();
