@@ -537,11 +537,7 @@ int main(int argc, char* argv[]) {
       grid.clearGridVals();
       construct_dynamic_potential_field(grid, group);
       crowd_advection(grid, group);
-      for (Person &p : group.people) {
-        std::cout << p.getPos()[0] << " " << p.getPos()[1] << std::endl;
-      }
       point_traj.push_back(points_from_groups(groups));
-
     }
     enforce_minimum_distance(grid, groups);
 

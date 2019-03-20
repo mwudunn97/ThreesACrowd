@@ -120,9 +120,8 @@ void Grid::handle_collisions(Person &person) {
 
       // if these two persons collide, move this one away from the other
       glm::vec2 dir = person.getPos() - other->getPos();
-      if (glm::length(dir) < 1.0) {
-        glm::length(dir);
-        total_correction += (1.0f - glm::length(dir)) * (dir / glm::length(dir));
+      if (glm::length(dir) < dist_enforce) {
+        total_correction += (dist_enforce - glm::length(dir)) * (dir / glm::length(dir));
         num_corrections++;
       }
     }
@@ -152,6 +151,7 @@ Grid::Grid(json &j) {
   s_min =   j["s_min"];
   s_max =   j["s_max"];
   lambda =  j["lambda"];
+  dist_enforce = j["dist_enforce"];
 
   fill();
 }

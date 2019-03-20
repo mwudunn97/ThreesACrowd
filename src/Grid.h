@@ -103,6 +103,7 @@ public:
   float s_min;   // eqn. 8
   float s_max;   // eqn. 8
   double lambda; // section 4.1
+  float dist_enforce;
 
   void build_neighbor_map(std::vector<Group> &groups);
   void handle_collisions(Person &person);
