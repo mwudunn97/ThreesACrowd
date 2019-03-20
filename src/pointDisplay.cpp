@@ -36,14 +36,20 @@ void display_point(glm::vec2 point) {
 
 }
 
+void set_grid_sizes(float width, float height) {
+  gridWidth = width;
+  gridHeight = height;
+}
+
 //Write points to a file, so it can be loaded into unity
 int write_points(vector<vector<vec2>> points, string filename) {
   ofstream pointFile;
   pointFile.open (filename);
-  pointFile << to_string(points[0].size());
+  std::cout << points[0].size();
+  pointFile << to_string(points[0].size()) + " " + to_string(points.size()) + "\n";
   for (vector<vec2> trajectories: points) {
     for (vec2 point: trajectories) {
-      pointFile << to_string(point[0]) + " " + to_string(point[1]) + "\n";
+      pointFile << to_string(point[0] / gridWidth) + " " + to_string(point[1] / gridHeight) + "\n";
     }
   }
   pointFile.close();

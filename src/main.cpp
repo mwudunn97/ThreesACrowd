@@ -506,6 +506,7 @@ int main(int argc, char* argv[]) {
 
 
 
+
   /* Write points to a file */
   //write_points(points, filename);
 
@@ -521,6 +522,7 @@ int main(int argc, char* argv[]) {
   }
 
   Grid grid(j);
+  set_grid_sizes((float) grid.getWidth(), (float) grid.getHeight());
   std::vector<Group> groups;
   if (load_groups(j, &groups)) {
     std::cerr << "Error loading groups from config file" << std::endl;
@@ -544,7 +546,8 @@ int main(int argc, char* argv[]) {
   }
   set_points(point_traj);
   /* Display points function, replace with actual point vector */
-  display_points(grid.getWidth(), grid.getHeight());
+  write_points(point_traj, "1ppl1grp.txt");
+ // display_points(grid.getWidth(), grid.getHeight());
 
 
   return 0;
