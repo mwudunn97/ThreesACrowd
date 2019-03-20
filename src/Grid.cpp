@@ -180,6 +180,10 @@ Cell* Grid::getCell(glm::ivec2 ij) {
   return &grid[ij[1]][ij[0]];
 }
 
+Cell* Grid::getCellFromPos(glm::vec2 pos) {
+  return getCell(static_cast<int>(pos[0]), static_cast<int>(pos[1]));
+}
+
 void Grid::print_v_avg() {
   for (auto row = grid.rbegin(); row != grid.rend(); ++row) {
     for (auto &cell : *row) {

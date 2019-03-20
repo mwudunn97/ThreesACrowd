@@ -83,6 +83,7 @@ public:
 
   Cell *getCell(int i, int j);
   Cell *getCell(glm::ivec2 ij);
+  Cell *getCellFromPos(glm::vec2 pos);
 
   std::vector<std::vector<Cell>> grid;
   std::vector<Edge> edges;

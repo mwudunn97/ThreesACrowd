@@ -229,11 +229,25 @@ void finite_differences_approx(Cell &cell) {
     phi_m = (-1.0f * b) / (2.0f * a);
 
     cell.edges[d_mx]->phi_grad = phi_mx - phi_m;
-    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad *
-        (float) -cell.neighbors[d_mx]->f[(d_mx + 2) % 4];
     cell.edges[d_my]->phi_grad = phi_my - phi_m;
-    cell.edges[d_my]->v = cell.edges[d_my]->phi_grad *
-        (float) -cell.neighbors[d_my]->f[(d_my + 2) % 4];
+    float velocityX = cell.edges[d_mx]->phi_grad *
+                      (float) -cell.f[d_mx];
+    float velocityY = cell.edges[d_my]->phi_grad *
+                      (float) -cell.f[d_my];
+    if (d_mx == West) {
+      cell.edges[d_mx]->v = velocityX * (float) n_theta_int[d_mx];
+    } else {
+      //This should literally do nothing 
+      float mult = (float) n_theta_int[d_mx];
+      float new_velocityX = velocityX * mult;
+      cell.edges[d_mx]->v = new_velocityX;
+    }
+    if (d_my == South) {
+      cell.edges[d_my]->v = velocityY * (float) n_theta_int[d_my];
+    }
+
+
+
   }
 
   cell.phi_tmp = phi_m;
@@ -349,10 +363,26 @@ void crowd_advection(Grid &grid, Group &group) {
   for (auto &person : people) {
     // bilinearly interpolate velocity for this person relative to center of cells
     cellAvel = cellBvel = cellCvel = cellDvel = glm::vec2(0.0f);
-    Cell *cellA = person.getCell(grid);
-    Cell *cellB = cellA->neighbors[East];
-    Cell *cellC = cellB ? cellA->neighbors[East]->neighbors[North] : nullptr;
-    Cell *cellD = cellA->neighbors[North];
+
+    glm::vec2 pos = person.getPos();
+    Cell *cellA;
+    Cell *cellB;
+    Cell *cellC;
+    Cell *cellD;
+
+    if (pos[0] - 0.5 >= 0 && pos[1] - 0.5 >= 0) {
+      cellA = grid.getCellFromPos(pos - vec2(0.5, 0.5));
+      cellB = cellA->neighbors[East];
+      cellC = cellB ? cellA->neighbors[East]->neighbors[North] : nullptr;
+      cellD = cellA->neighbors[North];
+
+
+    } else {
+      cellA = grid.getCellFromPos(pos - vec2(0.5, 0.5));
+      cellB = cellA->neighbors[East];
+      cellC = cellB ? cellA->neighbors[East]->neighbors[North] : nullptr;
+      cellD = cellA->neighbors[North];
+    }
 
     if (cellA) {
       cellAvel = cellA->v_avg;
@@ -377,7 +407,7 @@ void crowd_advection(Grid &grid, Group &group) {
       velocity.x = std::min(velocity.x, 0.0f);
     } else if (!cellA && !cellB) {
       // interpolate x-axis of D,C
-      velocity = interpolateTwo(person.getPos().y, cellD->i + 0.5f, cellC->i + 0.5f, cellDvel, cellCvel);
+      velocity = interpolateTwo(person.getPos().y, cellD->i - 0.5f, cellC->i - 0.5f, cellDvel, cellCvel);
       velocity.y = std::max(velocity.y, 0.0f);
     } else if (!cellC && !cellD) {
       // interpolate x-axis of A,B
@@ -526,7 +556,7 @@ int main(int argc, char* argv[]) {
     }
     enforce_minimum_distance(grid, groups);
 
-    if (i == 30) {
+    if (i == 7) {
       set_points(point_traj);
       /* Display points function, replace with actual point vector */
       //display_points(grid.getWidth(), grid.getHeight());
