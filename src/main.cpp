@@ -215,14 +215,17 @@ void finite_differences_approx(Cell &cell) {
     float det = c_mx;
     phi_m = phi_my + std::sqrt(det);
     cell.edges[d_my]->phi_grad = phi_my - phi_m;
-    cell.edges[d_my]->v = cell.edges[d_my]->phi_grad *
-        (float) -cell.neighbors[d_my]->f[(d_my + 2) % 4];
+
+    float velocityY = cell.edges[d_my]->phi_grad *
+                      (float) -cell.f[d_my];
+    cell.edges[d_my]->v = velocityY * (float) n_theta_int[d_my];
   } else if (std::isinf(phi_my)) {
     float det = c_my;
     phi_m = phi_mx + std::sqrt(det);
     cell.edges[d_mx]->phi_grad = phi_mx - phi_m;
-    cell.edges[d_mx]->v = cell.edges[d_mx]->phi_grad *
-        (float) -cell.neighbors[d_mx]->f[(d_mx + 2) % 4];
+    float velocityX = cell.edges[d_mx]->phi_grad *
+                      (float) -cell.f[d_mx];
+    cell.edges[d_mx]->v = velocityX * (float) n_theta_int[d_mx];
   } else {
     float a = (c_mx + c_my);
     float b = -2.0f * (c_my * phi_mx + c_mx * phi_my) ;
@@ -234,17 +237,10 @@ void finite_differences_approx(Cell &cell) {
                       (float) -cell.f[d_mx];
     float velocityY = cell.edges[d_my]->phi_grad *
                       (float) -cell.f[d_my];
-    if (d_mx == West) {
-      cell.edges[d_mx]->v = velocityX * (float) n_theta_int[d_mx];
-    } else {
-      //This should literally do nothing 
-      float mult = (float) n_theta_int[d_mx];
-      float new_velocityX = velocityX * mult;
-      cell.edges[d_mx]->v = new_velocityX;
-    }
-    if (d_my == South) {
-      cell.edges[d_my]->v = velocityY * (float) n_theta_int[d_my];
-    }
+    cell.edges[d_mx]->v = velocityX * (float) n_theta_int[d_mx];
+
+    cell.edges[d_my]->v = velocityY * (float) n_theta_int[d_my];
+
 
 
 
