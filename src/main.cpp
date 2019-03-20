@@ -367,54 +367,50 @@ void crowd_advection(Grid &grid, Group &group) {
     Cell *cellD;
 
     if (pos[0] - 0.5 >= 0 && pos[1] - 0.5 >= 0) {
-      cellA = grid.getCellFromPos(pos - vec2(0.5, 0.5));
-      cellB = cellA->neighbors[East];
-      cellC = cellB ? cellA->neighbors[East]->neighbors[North] : nullptr;
-      cellD = cellA->neighbors[North];
+      Cell * cellA = grid.getCellFromPos(pos - vec2(0.5, 0.5));
+      Cell * cellB = cellA->neighbors[East];
+      Cell *cellC = cellB ? cellA->neighbors[East]->neighbors[North] : nullptr;
+      Cell *cellD = cellA->neighbors[North];
 
+      if (cellA) {
+        cellAvel = cellA->v_avg;
+      }
+      if (cellB) {
+        cellBvel = cellB->v_avg;
+      }
+      if (cellC) {
+        cellCvel = cellC->v_avg;
+      }
+      if (cellD) {
+        cellDvel = cellD->v_avg;
+      }
 
+      if (!cellA && !cellD) {
+        // interpolate y-axis of B,C
+        velocity = interpolateTwo(person.getPos().y, cellB->j + 0.5f, cellC->j + 0.5f, cellBvel, cellCvel);
+        velocity.x = std::max(velocity.x, 0.0f);
+      } else if (!cellC && !cellB) {
+        // interpolate y-axis of A,D
+        velocity = interpolateTwo(person.getPos().y, cellA->j + 0.5f, cellD->j + 0.5f, cellAvel, cellDvel);
+        velocity.x = std::min(velocity.x, 0.0f);
+      } else if (!cellA && !cellB) {
+        // interpolate x-axis of D,C
+        velocity = interpolateTwo(person.getPos().y, cellD->i + 0.5f, cellC->i + 0.5f, cellDvel, cellCvel);
+        velocity.y = std::max(velocity.y, 0.0f);
+      } else if (!cellC && !cellD) {
+        // interpolate x-axis of A,B
+        velocity = interpolateTwo(person.getPos().y, cellA->i + 0.5f, cellB->i + 0.5f, cellAvel, cellBvel);
+        velocity.y = std::min(velocity.y, 0.0f);
+      } else {
+        // interpolate between all 4 cells
+        velocity = interpolateFour(person.getPos().x, person.getPos().y,
+                                   cellA->i + 0.5f, cellA->j + 0.5f,
+                                   cellC->i + 0.5f, cellC->j + 0.5f,
+                                   cellAvel, cellBvel, cellDvel, cellCvel);
+      }
     } else {
-      cellA = grid.getCellFromPos(pos - vec2(0.5, 0.5));
-      cellB = cellA->neighbors[East];
-      cellC = cellB ? cellA->neighbors[East]->neighbors[North] : nullptr;
-      cellD = cellA->neighbors[North];
-    }
-
-    if (cellA) {
-      cellAvel = cellA->v_avg;
-    }
-    if (cellB) {
-      cellBvel = cellB->v_avg;
-    }
-    if (cellC) {
-      cellCvel = cellC->v_avg;
-    }
-    if (cellD) {
-      cellDvel = cellD->v_avg;
-    }
-
-    if (!cellA && !cellD) {
-      // interpolate y-axis of B,C
-      velocity = interpolateTwo(person.getPos().y, cellB->j + 0.5f, cellC->j + 0.5f, cellBvel, cellCvel);
-      velocity.x = std::max(velocity.x, 0.0f);
-    } else if (!cellC && !cellB) {
-      // interpolate y-axis of A,D
-      velocity = interpolateTwo(person.getPos().y, cellA->j + 0.5f, cellD->j + 0.5f, cellAvel, cellDvel);
-      velocity.x = std::min(velocity.x, 0.0f);
-    } else if (!cellA && !cellB) {
-      // interpolate x-axis of D,C
-      velocity = interpolateTwo(person.getPos().y, cellD->i - 0.5f, cellC->i - 0.5f, cellDvel, cellCvel);
-      velocity.y = std::max(velocity.y, 0.0f);
-    } else if (!cellC && !cellD) {
-      // interpolate x-axis of A,B
-      velocity = interpolateTwo(person.getPos().y, cellA->i + 0.5f, cellB->i + 0.5f, cellAvel, cellBvel);
-      velocity.y = std::min(velocity.y, 0.0f);
-    } else {
-      // interpolate between all 4 cells
-      velocity = interpolateFour(person.getPos().x, person.getPos().y,
-                                 cellA->i + 0.5f, cellA->j + 0.5f,
-                                 cellC->i + 0.5f, cellC->j + 0.5f,
-                                 cellAvel, cellBvel, cellDvel, cellCvel);
+      Cell * cell = grid.getCellFromPos(pos);
+      velocity = cell->v_avg;
     }
 
     // update person's velocity and position
